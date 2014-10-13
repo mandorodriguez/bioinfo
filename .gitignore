@@ -1,0 +1,32 @@
+# emacs tmp files #
+###################
+*~
+[#]*[#]
+.\#*
+
+# build generated files #
+#########################
+*.log
+
+# local Project files/folders #
+###############################
+*.pyc
+filtered_blast.txt
+
+.cache
+
+# Compiled source #
+###################
+*.com
+*.class
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
