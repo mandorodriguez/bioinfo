@@ -88,19 +88,34 @@ def __main__():
             # if no hits we just keep going
             if len(qresult.hits) == 0:
                 continue
-            
-            # this counts the total number of hits loaded
-            num_total_qresults += sum([len(h) for h in qresult.hits])
-
-            filtered_qresult = filter_max_bitscore(qresult)
+            else:
+                num_total_qresults += 1
                 
-            num_filtered_qresults += sum([len(h) for h in filtered_qresult.hits])
+                
+            hits_in_qresult = sum([len(h) for h in qresult.hits])
 
-            blast_data.append(filtered_qresult)
+            if hits_in_qresult == 1:
+
+                blast_data.append(qresult)
+
+            else:
+
+                num_filtered_qresults += 1
+            
+            
+            # commented out this stuff!
+            # this counts the total number of hits loaded for this query
+            #num_total_qresults += sum([len(h) for h in qresult.hits])
+
+            #filtered_qresult = filter_max_bitscore(qresult)
+                
+            #num_filtered_qresults += sum([len(h) for h in filtered_qresult.hits])
+
+            #blast_data.append(filtered_qresult)
 
             
-
-        print "Filted out %d hits from %d total hits" % (num_total_qresults - num_filtered_qresults, num_total_qresults)
+        #pdb.set_trace()
+        print "Filted out %d positions from %d total query results" % (num_filtered_qresults, num_total_qresults)
 
         output_handle = open(output_file, "w")
         
