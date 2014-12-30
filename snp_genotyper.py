@@ -3,11 +3,18 @@
 import argparse
 import pdb
 
+#*******************************************************************************
+# Based on the original code here:
+#   https://github.com/Henshina/Genotyper/blob/master/Geno1.py
+#*******************************************************************************
+
+
+
+
 #*** SNP class object ******************************************
 # Bulding functionality into this class object
 # to save a bunch of work.
 #***************************************************************
-
 class SNP:
     
     #--------------------------------------------
@@ -64,7 +71,7 @@ def __main__():
                         help="The output file", default="snp_genotype_out.txt")
     args = parser.parse_args()
 
-    # open the snp table
+    # open the snp table and load it into some data types.
     
     header, qindexes, snp_objects = load_table(args.snp_table)
     
