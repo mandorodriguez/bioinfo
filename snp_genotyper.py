@@ -24,12 +24,18 @@ class SNP:
 
         self.qindexes = qindexes
 
+        # just the ref base
         self.ref_base = self.snp_data[ref_base_index]
-        
+
+        # collect the qbases from the SNP
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
-        self.ref_counts = self.get_ref_count()
+        # get the ref counts from the SNP
+        self.ref_counts = self.get_ref_counts()
 
+        # Convert our ref counts to a string as an ID for hashing.
+        self.count_id = ''.join([str(b) for b in self.ref_counts])
+        
     #--------------------------------------------
 
     def ref_matches(self):
@@ -41,7 +47,7 @@ class SNP:
 
     #--------------------------------------------
 
-    def get_ref_count(self):
+    def get_ref_counts(self):
         """
         performs the walk along the qbases and does the count if
         refbase bases match the qbase and resets if it doesn't.
@@ -125,7 +131,7 @@ def __main__():
     
     header, qindexes, snp_objects = load_table(args.snp_table)
     
-    pdb.set_trace()
+p    pdb.set_trace()
 
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
