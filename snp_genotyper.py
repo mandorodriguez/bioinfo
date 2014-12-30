@@ -28,7 +28,52 @@ class SNP:
         
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
+        self.ref_counts = self.get_ref_count()
+
+    #--------------------------------------------
+
+    def ref_matches(self):
+        """
+        This method just returns the number of times the refbase
+        matches all qbases.
+        """
+        return self.qbases.count( self.ref_base )
+
+    #--------------------------------------------
+
+    def get_ref_count(self):
+        """
+        performs the walk along the qbases and does the count if
+        refbase bases match the qbase and resets if it doesn't.
+        Only need to call this once on init since the SNP is immutable.
+        """
+        base_count = []
+        count = 0
+        for qb in self.qbases:
+
+            if qb == self.ref_base:
+                count += 1
+            else:
+                count = 0
+
+            base_count.append(count)
+
+        return base_count
+
 #*** end SNP class *********************************************
+
+
+#***** Genotyper class object ***********************************
+
+class Genotyper:
+    
+    #--------------------------------------------
+    def __init__(self):
+        pass
+    
+#****************************************************************
+
+
 
 
 #-------------------------------------------------------------------------------
@@ -57,8 +102,13 @@ def load_table(table_file):
 
 
     # returning everything in a tuple
+    print "Loaded %d SNPs from file '%s' with %d qbases per SNP.\n" % (len(snp_objects), table_file, len(qindexes))
     
     return (header, qindexes, snp_objects)
+
+
+#************* Genotyper class ******************************************
+
 
 #-------------------------------------------------------------------------------
 # Main function call
