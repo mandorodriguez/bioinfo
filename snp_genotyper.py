@@ -11,13 +11,15 @@ import pdb
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line):
+    def __init__(self, qindexes, line, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
         self.qindexes = qindexes
 
-        self.query_hits = ''.join([self.snp_data[qi] for qi in self.qindexes])
+        self.ref_base = self.snp_data[ref_base_index]
+        
+        self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
 #*** end SNP class *********************************************
 
@@ -63,6 +65,7 @@ def __main__():
     args = parser.parse_args()
 
     # open the snp table
+    
     header, qindexes, snp_objects = load_table(args.snp_table)
     
     pdb.set_trace()
