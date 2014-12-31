@@ -35,6 +35,9 @@ class SNP:
 
         # Convert our ref counts to a string as an ID for hashing.
         self.count_id = ''.join([str(b) for b in self.ref_counts])
+
+        # A class variable for the assigned encoding to set later
+        self.code = None
         
     #--------------------------------------------
 
@@ -66,26 +69,60 @@ class SNP:
 
         return base_count
 
+    #--------------------------------------------
+
+    def get_num_refs(self, num):
+
+        refs = []
+        
+        for indx, count in enumerate(self.ref_counts):
+
+            if count == num:
+                refs.append( self.qbases[indx] )
+
+        return refs
+    
 #*** end SNP class *********************************************
 
 
-#***** Genotyper class object ***********************************
 
-class Genotyper:
-    
+
+#***** AlphaIncrementer class object ***********************************
+class AlphaIncrementer:
+
     #--------------------------------------------
-    def __init__(self):
-        pass
+    def __init__(self, start=chr(ord('A') - 1)):
+
+        self.current_char = start
+
+
+    #--------------------------------------------
+
+    def get_next(self):
+        """
+        Increments the current character to the next one
+        and returns the new current.
+        """
+        
+        nchar = chr(ord(self.current_char)+1)
+
+        self.current_char = nchar
+
+        return self.current_char
     
 #****************************************************************
 
 
 
-
+        
 #-------------------------------------------------------------------------------
 
 def load_table(table_file):
-
+    """
+    Loads the table file into a tuple that returns the header, qindexes
+    and a list of all snp objects.
+    """
+    
     infile = open(table_file, 'r')
 
     table_data = infile.readlines()
@@ -130,8 +167,24 @@ def __main__():
     # open the snp table and load it into some data types.
     
     header, qindexes, snp_objects = load_table(args.snp_table)
-    
-p    pdb.set_trace()
+
+    # Here I'm going to encode the snp objects in a hash
+    # using the alpha incrementer.
+    alphainc = AlphaIncrementer()
+    encoding = {}
+
+    # loop through snp objects and set each one
+    for snp in snp_objects:
+
+        # if this is not given a key, then we add it and set it.
+        if not encoding.has_key(snp.count_id):
+
+            encoding[snp.count_id] = alphainc.get_next()
+
+        snp.code = encoding[snp.count_id]
+
+
+    pdb.set_trace()
 
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
