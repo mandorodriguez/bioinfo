@@ -22,6 +22,9 @@ class SNP:
 
         self.snp_data = line.split('\t')
 
+        # molecule is at index 0
+        self.molecule = self.snp_data[0]
+        
         self.qindexes = qindexes
 
         # just the ref base
@@ -72,7 +75,10 @@ class SNP:
     #--------------------------------------------
 
     def get_num_refs(self, num):
-
+        """
+        Returns a list of the bases where all counts match 'num'
+        """
+        
         refs = []
         
         for indx, count in enumerate(self.ref_counts):
@@ -80,7 +86,32 @@ class SNP:
             if count == num:
                 refs.append( self.qbases[indx] )
 
-        return refs
+        return sorted(refs)
+
+    #--------------------------------------------
+
+    def get_count_cols(self, num):
+        """
+        Returns a list with all bases that match up for
+        a column count.
+
+        """
+
+        count_columns = []
+        
+        for i in range(1,num+1):
+
+            nrefs = self.get_num_refs(i)
+
+            if len(nrefs) > 0:
+                
+                count_columns.append( ''.join(nrefs) )
+
+            else:
+
+                count_columns.append('--')
+
+        return count_columns
     
 #*** end SNP class *********************************************
 
@@ -114,6 +145,67 @@ class AlphaIncrementer:
 
 
 
+#****************************************************************
+class MoleculeDict:
+
+    def __init__(self):
+        self.molecule_dict = {}
+
+    #--------------------------------------------
+    def add(self, snp):
+
+        if not self.molecule_dict.has_key(snp.count_id):
+
+            self.molecule_dict[snp.count_id] = []
+            
+
+        self.molecule_dict[snp.count_id].append(snp.molecule)
+
+
+    #--------------------------------------------
+    def get(self, snp):
+
+        if self.molecule_dict.has_key(snp.count_id):
+
+            return self.molecule_dict[snp.count_id]
+
+        else:
+
+            return []
+            
+#****************************************************************
+
+
+#****************************************************************
+class RefposDict:
+    def __init__(self):
+        self.refpos_dict = {}
+
+    #--------------------------------------------
+    def add(self, snp):
+
+        if not self.refpos_dict.has_key(snp.count_id):
+
+            self.refpos_dict[snp.count_id] = []
+            
+
+        self.refpos_dict[snp.count_id].append(snp.ref_base)
+
+
+    #--------------------------------------------
+    def get(self, snp):
+
+        if self.refpos_dict.has_key(snp.count_id):
+
+            return self.refpos_dict[snp.count_id]
+
+        else:
+
+            return []
+#****************************************************************
+
+
+
         
 #-------------------------------------------------------------------------------
 
@@ -130,10 +222,10 @@ def load_table(table_file):
     infile.close()
 
     # The header should always be the first line
-    header = table_data[0]
+    header = table_data[0].split('\t')
 
     # collect the qindexes from the header with this loop within a list
-    qindexes = [indx for indx,colname in enumerate(header.split('\t')) if "qbase:" in colname]
+    qindexes = [indx for indx,colname in enumerate(header) if "qbase:" in colname]
 
 
     # put each line representing a SNP into a SNP object which was declared earlier
@@ -162,7 +254,15 @@ def __main__():
                         help="The snp table to input")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="snp_genotype_out.txt")
+    parser.add_argument("-s", "--sort", action="store_true",
+                        help="Sort snps by code")
+    parser.add_argument("-c", "--counts", type=int,
+                        help="Number of count columns to include in the table", default=3)
+    parser.add_argument("-m", "--min_table", action="store_true",
+                        help="Output a minimum table with only the counts and codes.")
+
     args = parser.parse_args()
+
 
     # open the snp table and load it into some data types.
     
@@ -171,18 +271,25 @@ def __main__():
     # Here I'm going to encode the snp objects in a hash
     # using the alpha incrementer.
     alphainc = AlphaIncrementer()
-    encoding = {}
+    encoding_dict = {}
+    molecule_dict = MoleculeDict()
+    refpos_dict = RefposDict()
 
     # loop through snp objects and set each one
     for snp in snp_objects:
 
         # if this is not given a key, then we add it and set it.
-        if not encoding.has_key(snp.count_id):
+        if not encoding_dict.has_key(snp.count_id):
 
-            encoding[snp.count_id] = alphainc.get_next()
+            encoding_dict[snp.count_id] = alphainc.get_next()
 
-        snp.code = encoding[snp.count_id]
+        snp.code = encoding_dict[snp.count_id]
 
+
+        # add this snp info to the molecule and refpos dicts
+        molecule_dict.add(snp)
+        refpos_dict.add(snp)
+        
 
     pdb.set_trace()
 
