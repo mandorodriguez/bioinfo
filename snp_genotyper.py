@@ -41,6 +41,17 @@ class SNP:
 
         # A class variable for the assigned encoding to set later
         self.code = None
+
+    
+    #--------------------------------------------
+
+    def first_half(self):
+        return self.snp_data[0:self.qindexes[0]]
+
+    #--------------------------------------------
+
+    def second_half(self):
+        return self.snp_data[self.qindexes[0]:]
         
     #--------------------------------------------
 
@@ -146,6 +157,9 @@ class AlphaIncrementer:
 
 
 #****************************************************************
+#
+# A class that contains the dictionary for hashing against the molecule
+# name.
 class MoleculeDict:
 
     def __init__(self):
@@ -172,10 +186,28 @@ class MoleculeDict:
         else:
 
             return []
+    #--------------------------------------------
+    def keys(self):
+        return self.molecule_dict.keys()
+    #-----------------------------------------------
+    def get_string(self, snp, unique=False):
+
+        if len(self.get(snp)) > 0:
+            
+            if unique:
+                return ",".join(list(set(self.get(snp))))
+            else:
+                return ",".join(self.get(snp))
+            
+        else:
+            return "--"
             
 #****************************************************************
 
 
+#****************************************************************
+# 
+#
 #****************************************************************
 class RefposDict:
     def __init__(self):
@@ -202,6 +234,20 @@ class RefposDict:
         else:
 
             return []
+
+    #-----------------------------------------------
+    def get_string(self, snp, unique=False):
+
+        if len(self.get(snp)) > 0:
+            
+            if unique:
+                return ",".join(list(set(self.get(snp))))
+            else:
+                return ",".join(self.get(snp))
+            
+        else:
+            return "--"
+        
 #****************************************************************
 
 
@@ -263,6 +309,7 @@ def __main__():
 
     args = parser.parse_args()
 
+    output_file = args.outfile
 
     # open the snp table and load it into some data types.
     
@@ -290,8 +337,29 @@ def __main__():
         molecule_dict.add(snp)
         refpos_dict.add(snp)
         
+    #------- Finished loop for encoding ---------------------------------------
 
-    pdb.set_trace()
+
+
+    #
+    # From here we just output with the new columns, same loop order as before.
+    #
+    with open(output_file, 'w') as of:
+
+        newcols_start = qindexes[0] 
+        newcols_end = qindexes[0] + 1
+
+        # First write the header.
+        of.write( "\t".join(header[0:newcols_start] + ["Group", "Count", "Reference Positions", "Molecule Number"] + header[newcols_end:]) )
+
+        
+        for snp in snp_objects:
+
+            line = "\t".join( snp.first_half() + [ snp.code, "".join([ str(r) for r in snp.get_ref_counts()]), refpos_dict.get_string(snp), molecule_dict.get_string(snp)] + snp.second_half() ) 
+
+            of.write(line)
+            
+    print "Output %d SNPs to file %s" % (len(snp_objects), output_file)
 
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
