@@ -135,7 +135,7 @@ class AlphaIncrementer:
     #--------------------------------------------
     def __init__(self, start=chr(ord('A') - 1)):
 
-        self.current_char = start
+        self.current_char = 0
 
 
     #--------------------------------------------
@@ -146,11 +146,13 @@ class AlphaIncrementer:
         and returns the new current.
         """
         
-        nchar = chr(ord(self.current_char)+1)
+        #nchar = chr(ord(self.current_char)+1)
 
-        self.current_char = nchar
+        #self.current_char = nchar
 
-        return self.current_char
+        self.current_char += 1
+
+        return str(self.current_char)
     
 #****************************************************************
 
