@@ -249,13 +249,19 @@ class CodeDict:
 
     #-----------------------------------------------
     def get_string(self, snp, unique=False):
-
+        
         if len(self.get(snp)) > 0:
-            
+
+            items = []
             if unique:
-                return ",".join(list(set(self.get(snp))))
+                
+                items = list(set(self.get(snp)))
+
             else:
-                return ",".join(self.get(snp))
+
+                items = self.get(snp)
+
+            return ",".join([s.ref_pos for s in items if snp.molecule == s.molecule])
             
         else:
             return "--"
@@ -412,12 +418,12 @@ def __main__():
         newcols_end = qindexes[0] + 1
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["Group", "Count", "Reference Positions", "Molecule Number"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["Code", "Group", "Reference Positions", "Molecule Number"] + header[newcols_end:]) )
 
         
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.code, "".join([ str(r) for r in snp.get_ref_counts()]), refpos_dict.get_string(snp), molecule_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.count_id, snp.code, code_dict.get_string(snp), molecule_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
             
