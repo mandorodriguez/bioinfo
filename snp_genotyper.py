@@ -18,7 +18,7 @@ import pdb
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line, ref_base_index=3):
+    def __init__(self, qindexes, line, ref_pos_index=1, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
@@ -26,6 +26,9 @@ class SNP:
         self.molecule = self.snp_data[0]
         
         self.qindexes = qindexes
+
+        # the ref pos
+        self.ref_pos = self.snp_data[ref_pos_index]
 
         # just the ref base
         self.ref_base = self.snp_data[ref_base_index]
@@ -70,18 +73,25 @@ class SNP:
         refbase bases match the qbase and resets if it doesn't.
         Only need to call this once on init since the SNP is immutable.
         """
-        base_count = []
+        encoding = []
+        seen = {}
         count = 0
+
+        # set the first for refbase
+        seen[self.ref_base] = 0
+                
         for qb in self.qbases:
 
-            if qb == self.ref_base:
+            if not seen.has_key(qb):
                 count += 1
-            else:
-                count = 0
+                seen[qb] = count
 
-            base_count.append(count)
 
-        return base_count
+            encoding.append(seen[qb])
+
+
+        return encoding
+
 
     #--------------------------------------------
 
@@ -211,27 +221,27 @@ class MoleculeDict:
 # 
 #
 #****************************************************************
-class RefposDict:
+class CodeDict:
     def __init__(self):
-        self.refpos_dict = {}
+        self._dict = {}
 
     #--------------------------------------------
     def add(self, snp):
 
-        if not self.refpos_dict.has_key(snp.count_id):
+        if not self._dict.has_key(snp.count_id):
 
-            self.refpos_dict[snp.count_id] = []
+            self._dict[snp.count_id] = []
             
 
-        self.refpos_dict[snp.count_id].append(snp.ref_base)
+        self._dict[snp.count_id].append(snp)
 
 
     #--------------------------------------------
     def get(self, snp):
 
-        if self.refpos_dict.has_key(snp.count_id):
+        if self._dict.has_key(snp.count_id):
 
-            return self.refpos_dict[snp.count_id]
+            return self._dict[snp.count_id]
 
         else:
 
@@ -253,6 +263,55 @@ class RefposDict:
 #****************************************************************
 
 
+
+#****************************************************************
+# 
+#
+#****************************************************************
+class TypeDict:
+    def __init__(self):
+        self._dict = {}
+
+
+
+    #--------------------------------------------
+    def add(self, snp):
+
+        keys = list(set(snp.ref_counts))
+
+        for k in keys:
+
+            self.add_to_dict(snp,k)
+            
+    #--------------------------------------------
+    def add_to_dict(self, snp, key):
+
+        if not self._dict.has_key(key):
+
+            self._dict[key] = []
+            
+
+        self._dict[key].append(snp)
+
+
+    #--------------------------------------------
+    def get(self, type):
+        """
+        Returns all snps collected with the number matching 'type'
+        in its code.
+        """
+
+        if self._dict.has_key(type):
+
+            return self._dict[type]
+
+        else:
+
+            return []
+
+
+        
+#****************************************************************
 
         
 #-------------------------------------------------------------------------------
@@ -322,7 +381,8 @@ def __main__():
     alphainc = AlphaIncrementer()
     encoding_dict = {}
     molecule_dict = MoleculeDict()
-    refpos_dict = RefposDict()
+    code_dict = CodeDict()
+    type_dict = TypeDict()
 
     # loop through snp objects and set each one
     for snp in snp_objects:
@@ -337,10 +397,10 @@ def __main__():
 
         # add this snp info to the molecule and refpos dicts
         molecule_dict.add(snp)
-        refpos_dict.add(snp)
+        code_dict.add(snp)
+        type_dict.add(snp)
         
     #------- Finished loop for encoding ---------------------------------------
-
 
 
     #

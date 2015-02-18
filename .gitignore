@@ -12,6 +12,7 @@
 ###############################
 *.pyc
 filtered_blast.txt
+snp_genotype_out.txt
 
 .cache
 
