@@ -441,12 +441,11 @@ def __main__():
     with open(output_file, 'w') as of:
 
         newcols_start = qindexes[0] 
-        newcols_end = qindexes[0] + 1
+        newcols_end = qindexes[0] 
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Genes_w_1", "Genes_w_2", "Genes_w_3", "Reference Positions"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", "Reference Positions"] + header[newcols_end:]) )
 
-        
         for snp in snp_objects:
 
             line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
