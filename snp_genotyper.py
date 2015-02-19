@@ -37,10 +37,19 @@ class SNP:
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
         # get the ref counts from the SNP
-        self.ref_counts = self.get_pattern()
+        self.pattern_list = self.get_pattern()
 
         # Convert our ref counts to a string as an ID for hashing.
-        self.pattern = ''.join([str(b) for b in self.ref_counts])
+        self.pattern = ''.join([str(b) for b in self.pattern_list])
+
+
+        # the occurance of different numbers in the pattern
+        self.zeroes = self.pattern_list.count(0)
+        self.ones = self.pattern_list.count(1)
+        self.twos = self.pattern_list.count(2)
+        self.threes = self.pattern_list.count(3)
+
+        self.info = self.set_informative()
 
         # A class variable for the assigned encoding to set later
         self.group = None
@@ -65,6 +74,24 @@ class SNP:
         """
         return self.qbases.count( self.ref_base )
 
+    #--------------------------------------------
+
+    def set_informative(self):
+        """
+        Just going to use the global ones, twos and threes variables for the check.
+
+        Simple check to find out if it's informative or not.
+        """
+
+        if self.ones == 1 or self.zeroes == 1:
+
+            if self.twos == 0 or (self.twos == 1 and self.threes <= 1):
+
+                return "NI"
+
+
+        return "PI"
+        
     #--------------------------------------------
 
     def get_pattern(self):
@@ -102,7 +129,7 @@ class SNP:
         
         refs = []
         
-        for indx, count in enumerate(self.ref_counts):
+        for indx, count in enumerate(self.pattern_list):
 
             if count == num:
                 refs.append( self.qbases[indx] )
@@ -259,7 +286,7 @@ class TypeDict:
     #--------------------------------------------
     def add(self, snp):
 
-        keys = list(set(snp.ref_counts))
+        keys = list(set(snp.pattern_list))
 
         for k in keys:
 
@@ -388,12 +415,12 @@ def __main__():
         newcols_end = qindexes[0] + 1
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["Group", "Reference Positions"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Reference Positions"] + header[newcols_end:]) )
 
         
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.group, group_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, group_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
             
