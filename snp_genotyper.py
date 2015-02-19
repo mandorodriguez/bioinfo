@@ -18,7 +18,7 @@ import pdb
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line, ref_pos_index=1, ref_base_index=3):
+    def __init__(self, qindexes, line, query_genes, ref_pos_index=1, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
@@ -36,6 +36,8 @@ class SNP:
         # collect the qbases from the SNP
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
+        self.query_genes = query_genes
+
         # get the ref counts from the SNP
         self.pattern_list = self.get_pattern()
 
@@ -51,9 +53,23 @@ class SNP:
 
         self.info = self.set_informative()
 
+
+        # lists of the genes at the positions with the number in the pattern
+        self.genes_w_one = self.list_to_string(self.get_genes(1))
+        self.genes_w_two = self.list_to_string(self.get_genes(2))
+        self.genes_w_three = self.list_to_string(self.get_genes(3))
+
         # A class variable for the assigned encoding to set later
         self.group = None
 
+    #--------------------------------------------
+
+    def list_to_string(self, l):
+
+        if len(l) == 0:
+            return "--"
+        else:
+            return ",".join(l)
     
     #--------------------------------------------
 
@@ -91,6 +107,17 @@ class SNP:
 
 
         return "PI"
+
+    #--------------------------------------------
+
+    def get_genes(self, num):
+        """
+        retreives all genes in the self.query_genes list that match up
+        with the postion of the number in the pattern_list.
+        """
+        indexes = [i for i,val in enumerate(self.pattern_list) if val == num]
+
+        return [self.query_genes[i] for i in indexes]
         
     #--------------------------------------------
 
@@ -343,13 +370,15 @@ def load_table(table_file):
     # collect the qindexes from the header with this loop within a list
     qindexes = [indx for indx,colname in enumerate(header) if "qbase:" in colname]
 
+    query_genes = [header[qi].replace("qbase:","") for qi in qindexes]
+
 
     # put each line representing a SNP into a SNP object which was declared earlier
     snp_objects = []
     
     for snp_line in table_data[1:]:
 
-        snp_objects.append( SNP(qindexes, snp_line) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genes) )
 
 
     # returning everything in a tuple
@@ -370,8 +399,8 @@ def __main__():
                         help="The snp table to input")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="snp_genotype_out.txt")
-    parser.add_argument("-m", "--min_table", action="store_true",
-                        help="Output a minimum table with only the counts and codes.")
+#    parser.add_argument("-m", "--min_table", action="store_true",
+#                        help="Output a minimum table with only the patterns and codes.")
 
     args = parser.parse_args()
 
@@ -415,12 +444,12 @@ def __main__():
         newcols_end = qindexes[0] + 1
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Reference Positions"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Genes_w_1", "Genes_w_2", "Genes_w_3", "Reference Positions"] + header[newcols_end:]) )
 
         
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, group_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
             
