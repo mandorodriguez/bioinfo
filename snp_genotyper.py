@@ -370,7 +370,7 @@ def load_table(table_file):
     # collect the qindexes from the header with this loop within a list
     qindexes = [indx for indx,colname in enumerate(header) if "qbase:" in colname]
 
-    query_genes = [header[qi].replace("qbase:","") for qi in qindexes]
+    query_genes = [header[qi].replace("qbase:","").rstrip() for qi in qindexes]
 
 
     # put each line representing a SNP into a SNP object which was declared earlier
