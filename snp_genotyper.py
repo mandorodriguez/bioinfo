@@ -201,7 +201,7 @@ class AlphaIncrementer:
 #****************************************************************
 #
 # A class that contains the dictionary for hashing against the molecule
-# name.
+# name and saves the reference position.
 class MoleculeDict:
 
     def __init__(self):
@@ -210,20 +210,20 @@ class MoleculeDict:
     #--------------------------------------------
     def add(self, snp):
 
-        if not self.molecule_dict.has_key(snp.pattern):
+        if not self.molecule_dict.has_key(snp.molecule):
 
             self.molecule_dict[snp.pattern] = []
             
 
-        self.molecule_dict[snp.pattern].append(snp.molecule)
+        self.molecule_dict[snp.pattern].append(str(snp.ref_pos))
 
 
     #--------------------------------------------
     def get(self, snp):
 
-        if self.molecule_dict.has_key(snp.pattern):
+        if self.molecule_dict.has_key(snp.molecule):
 
-            return self.molecule_dict[snp.pattern]
+            return self.molecule_dict[snp.molecule]
 
         else:
 
@@ -231,18 +231,6 @@ class MoleculeDict:
     #--------------------------------------------
     def keys(self):
         return self.molecule_dict.keys()
-    #-----------------------------------------------
-    def get_string(self, snp, unique=False):
-
-        if len(self.get(snp)) > 0:
-            
-            if unique:
-                return ",".join(list(set(self.get(snp))))
-            else:
-                return ",".join(self.get(snp))
-            
-        else:
-            return "--"
             
 #****************************************************************
 
@@ -260,22 +248,40 @@ class GroupDict:
 
         if not self._dict.has_key(snp.pattern):
 
-            self._dict[snp.pattern] = []
-            
+            self._dict[snp.pattern] = {}
 
-        self._dict[snp.pattern].append(snp)
+        if not self._dict[snp.pattern].has_key(snp.molecule):
+
+            self._dict[snp.pattern][snp.molecule] = []
+
+            
+        #self._dict[snp.pattern].append(snp)
+        self._dict[snp.pattern][snp.molecule].append(snp)
 
 
     #--------------------------------------------
     def get(self, snp):
 
+        reflist = []
+        
         if self._dict.has_key(snp.pattern):
 
-            return self._dict[snp.pattern]
+            pattern = self._dict[snp.pattern]
 
-        else:
+            
+            
+            for k in pattern.keys():
 
-            return []
+                refs = ",".join([str(s.ref_pos) for s in pattern[k]])
+
+                molpos = "%s: %s" % (k,refs)
+
+                reflist.append(molpos)
+
+        
+
+        return reflist
+
 
     #-----------------------------------------------
     def get_string(self, snp, unique=False):
@@ -291,12 +297,58 @@ class GroupDict:
 
                 items = self.get(snp)
 
-            return ",".join([s.ref_pos for s in items if snp.molecule == s.molecule])
+            return " | ".join(items)
             
         else:
             return "--"
         
 #****************************************************************
+
+# class GroupDict:
+#     def __init__(self):
+#         self._dict = {}
+
+#     #--------------------------------------------
+#     def add(self, snp):
+
+#         if not self._dict.has_key(snp.pattern):
+
+#             self._dict[snp.pattern] = []
+
+            
+#         self._dict[snp.pattern].append(snp)
+
+
+#     #--------------------------------------------
+#     def get(self, snp):
+
+#         if self._dict.has_key(snp.pattern):
+
+#             return self._dict[snp.pattern]
+
+#         else:
+
+#             return []
+
+#     #-----------------------------------------------
+#     def get_string(self, snp, unique=False):
+        
+#         if len(self.get(snp)) > 0:
+
+#             items = []
+#             if unique:
+                
+#                 items = list(set(self.get(snp)))
+
+#             else:
+
+#                 items = self.get(snp)
+
+#             return ",".join([s.ref_pos for s in items if snp.molecule == s.molecule])
+            
+#         else:
+#             return "--"
+        
 
 
 
