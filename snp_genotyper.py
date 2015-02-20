@@ -198,48 +198,12 @@ class AlphaIncrementer:
 
 
 
-#****************************************************************
-#
-# A class that contains the dictionary for hashing against the molecule
-# name and saves the reference position.
-class MoleculeDict:
-
-    def __init__(self):
-        self.molecule_dict = {}
-
-    #--------------------------------------------
-    def add(self, snp):
-
-        if not self.molecule_dict.has_key(snp.molecule):
-
-            self.molecule_dict[snp.pattern] = []
-            
-
-        self.molecule_dict[snp.pattern].append(str(snp.ref_pos))
-
-
-    #--------------------------------------------
-    def get(self, snp):
-
-        if self.molecule_dict.has_key(snp.molecule):
-
-            return self.molecule_dict[snp.molecule]
-
-        else:
-
-            return []
-    #--------------------------------------------
-    def keys(self):
-        return self.molecule_dict.keys()
-            
-#****************************************************************
-
 
 #****************************************************************
 # 
 #
 #****************************************************************
-class GroupDict:
+class MoleculeDict:
     def __init__(self):
         self._dict = {}
 
@@ -356,48 +320,62 @@ class GroupDict:
 # 
 #
 #****************************************************************
-class TypeDict:
+class GroupDict:
     def __init__(self):
         self._dict = {}
 
 
+        self.molecules = {}
 
     #--------------------------------------------
     def add(self, snp):
 
-        keys = list(set(snp.pattern_list))
+        if not self._dict.has_key(snp.group):
 
-        for k in keys:
+            self._dict[snp.group] = {}
+            self._dict[snp.group]['snp'] = snp
 
-            self.add_to_dict(snp,k)
+        if not self._dict[snp.group].has_key(snp.molecule):
+
+            self._dict[snp.group][snp.molecule] = []
             
-    #--------------------------------------------
-    def add_to_dict(self, snp, key):
-
-        if not self._dict.has_key(key):
-
-            self._dict[key] = []
             
 
-        self._dict[key].append(snp)
+        if not self.molecules.has_key(snp.molecule):
 
+            self.molecules[snp.molecule] = snp
+
+            
+        self._dict[snp.group][snp.molecule].append(snp)
 
     #--------------------------------------------
-    def get(self, type):
-        """
-        Returns all snps collected with the number matching 'type'
-        in its code.
-        """
 
-        if self._dict.has_key(type):
+    def get_group_string(self, group, molecule_list):
 
-            return self._dict[type]
+        group_collection = self._dict[group]
+
+        snp = group_collection['snp']
+
+
+
+        molecule_refpos = [self.get_molecule_string(group, m) for m in molecule_list]
+        
+        line = "\t".join([str(group), str(snp.pattern), snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three] + molecule_refpos)
+        
+        return line 
+    #--------------------------------------------        
+
+    def get_molecule_string(self, group, molecule):
+
+        if self._dict[group].has_key(molecule):
+
+            snps = self._dict[group][molecule]
+
+            return ",".join([str(s.ref_pos) for s in snps])
 
         else:
 
-            return []
-
-
+            return "--"
         
 #****************************************************************
 
@@ -439,8 +417,31 @@ def load_table(table_file):
     return (header, qindexes, snp_objects)
 
 
-#************* Genotyper class ******************************************
+#*******************************************************************************
 
+def group_file(group_dict, outfile):
+
+
+    with open(outfile, 'w') as of:
+        
+        molecules = sorted(group_dict.molecules.keys())
+
+        header = ["Group", "Pattern", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", ] + ["refs:%s" % m for m in molecules]
+
+        
+        groups = sorted(group_dict._dict.keys())
+
+
+        of.write("\t".join(header)+"\n")
+
+
+        for g in groups:
+
+            line = group_dict.get_group_string(g, molecules)
+
+            of.write(line+"\n")
+
+    print "Write a group file to '%s'" % outfile
 
 #-------------------------------------------------------------------------------
 # Main function call
@@ -451,6 +452,9 @@ def __main__():
                         help="The snp table to input")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="snp_genotype_out.txt")
+    parser.add_argument("-g", "--groupfile", type=str,
+                        help="Output file indexed by pattern groups")
+
 #    parser.add_argument("-m", "--min_table", action="store_true",
 #                        help="Output a minimum table with only the patterns and codes.")
 
@@ -466,8 +470,8 @@ def __main__():
     # using the alpha incrementer.
     alphainc = AlphaIncrementer()
     encoding_dict = {}
+    molecule_dict = MoleculeDict()
     group_dict = GroupDict()
-    type_dict = TypeDict()
 
     # loop through snp objects and set each one
     for snp in snp_objects:
@@ -481,8 +485,8 @@ def __main__():
 
 
         # add this snp info to the molecule and refpos dicts
+        molecule_dict.add(snp)
         group_dict.add(snp)
-        type_dict.add(snp)
         
     #------- Finished loop for encoding ---------------------------------------
 
@@ -500,11 +504,18 @@ def __main__():
 
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
-            
+
+
     print "Output %d SNPs to file %s" % (len(snp_objects), output_file)
+
+
+    # If we want to write a group file out we do it here.
+    if not args.groupfile is None:
+        
+        group_file(group_dict,args.groupfile)
 
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
