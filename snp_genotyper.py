@@ -69,7 +69,7 @@ class SNP:
         if len(l) == 0:
             return "--"
         else:
-            return ",".join(l)
+            return ",".join(sorted(l))
     
     #--------------------------------------------
 
