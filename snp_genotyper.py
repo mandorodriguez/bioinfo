@@ -59,6 +59,8 @@ class SNP:
         self.genes_w_two = self.list_to_string(self.get_genes(2))
         self.genes_w_three = self.list_to_string(self.get_genes(3))
 
+        self.snp_total = self.get_snp_total()
+
         # A class variable for the assigned encoding to set later
         self.group = None
 
@@ -163,6 +165,34 @@ class SNP:
 
         return sorted(refs)
 
+    #--------------------------------------------
+    
+    def get_snp_total(self):
+
+        qbases = [q for q in self.qbases if not q in [self.ref_base, "No Hit", "indel"]]
+
+        if len(qbases) == 0:
+
+            return "--"
+
+        else:
+
+            qtotal = []
+            
+            # get rid of the stuff with a '/' in it.
+            for q in qbases:
+
+                if '/' in q:
+                    
+                    qtotal += [qb for qb in q.split('/') if not qb in [self.ref_base, "No Hit", "indel"]]
+
+                else:
+
+                    qtotal += q
+
+            
+            return "".join( list(set(qtotal)) )
+        
     
 #*** end SNP class *********************************************
 
@@ -500,11 +530,11 @@ def __main__():
         newcols_end = qindexes[0] 
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["Pattern", "Group", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", "Reference Positions"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["snp_total", "Pattern", "Group", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", "Reference Positions"] + header[newcols_end:]) )
 
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
 
