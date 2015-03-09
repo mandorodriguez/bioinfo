@@ -30,7 +30,7 @@ def translate_codon(codon, transl_table=1):
         2 : {'AGA' : '*', 'AGG' : '*', 'AUA' : 'M', 'UGA' : 'W'},
 
         # 3. The Yeast Mitochondrial Code
-        3 : {'AUA' : 'M', 'CUU' : 'T', 'CUC' : 'T', 'CUA' : 'T', 'CUG' : 'T' , 'UGA' : 'W', 'CGA' : 'absent', 'CGC' : 'absent'},
+        3 : {'AUA' : 'M', 'CUU' : 'T', 'CUC' : 'T', 'CUA' : 'T', 'CUG' : 'T' , 'UGA' : 'W', 'CGA' : 'X', 'CGC' : 'X'},
 
         # 4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code 
         4 : {'UGA' : 'W'},
@@ -97,7 +97,9 @@ def translate_codon(codon, transl_table=1):
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line, query_genes, transl_table=1, ref_pos_index=1, ref_base_index=3):
+    def __init__(self, qindexes, line, query_genes, query_aa_index,
+                 ref_aa_index, ref_codon_index, query_codon_index, gene_name_index,
+                 transl_table=1, ref_pos_index=1, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
@@ -111,6 +113,16 @@ class SNP:
 
         # just the ref base
         self.ref_base = self.snp_data[ref_base_index]
+
+
+        if self.snp_data[gene_name_index] != "intergenic":
+            # This resets the Amino acids via the trans table given.
+            #
+            # This will now leave multiple translated aminos in the table. 
+            self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], transl_table)
+            
+            self.snp_data[query_aa_index] = "/".join([translate_codon(q, transl_table) for q in self.snp_data[query_codon_index].split('/') ])
+
 
         # collect the qbases from the SNP
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
@@ -373,55 +385,6 @@ class MoleculeDict:
             
         else:
             return "--"
-        
-#****************************************************************
-
-# class GroupDict:
-#     def __init__(self):
-#         self._dict = {}
-
-#     #--------------------------------------------
-#     def add(self, snp):
-
-#         if not self._dict.has_key(snp.pattern):
-
-#             self._dict[snp.pattern] = []
-
-            
-#         self._dict[snp.pattern].append(snp)
-
-
-#     #--------------------------------------------
-#     def get(self, snp):
-
-#         if self._dict.has_key(snp.pattern):
-
-#             return self._dict[snp.pattern]
-
-#         else:
-
-#             return []
-
-#     #-----------------------------------------------
-#     def get_string(self, snp, unique=False):
-        
-#         if len(self.get(snp)) > 0:
-
-#             items = []
-#             if unique:
-                
-#                 items = list(set(self.get(snp)))
-
-#             else:
-
-#                 items = self.get(snp)
-
-#             return ",".join([s.ref_pos for s in items if snp.molecule == s.molecule])
-            
-#         else:
-#             return "--"
-        
-
 
 
 #****************************************************************
@@ -510,13 +473,18 @@ def load_table(table_file):
 
     query_genes = [header[qi].replace("qbase:","").rstrip() for qi in qindexes]
 
+    query_aa_index = header.index('query_aa')
+    ref_aa_index = header.index('ref_aa')
+    ref_codon_index = header.index('ref_codon')
+    query_codon_index = header.index('query_codon')
+    gene_name_index = header.index('gene_name')
 
     # put each line representing a SNP into a SNP object which was declared earlier
     snp_objects = []
     
     for snp_line in table_data[1:]:
 
-        snp_objects.append( SNP(qindexes, snp_line, query_genes) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genes, query_aa_index, ref_aa_index, ref_codon_index, query_codon_index, gene_name_index) )
 
 
     # returning everything in a tuple
