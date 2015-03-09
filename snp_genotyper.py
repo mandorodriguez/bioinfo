@@ -30,6 +30,7 @@ def translate_codon(codon, transl_table=1):
         2 : {'AGA' : '*', 'AGG' : '*', 'AUA' : 'M', 'UGA' : 'W'},
 
         # 3. The Yeast Mitochondrial Code
+        # Used 'X' in place of 'absent'
         3 : {'AUA' : 'M', 'CUU' : 'T', 'CUC' : 'T', 'CUA' : 'T', 'CUG' : 'T' , 'UGA' : 'W', 'CGA' : 'X', 'CGC' : 'X'},
 
         # 4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code 
