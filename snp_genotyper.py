@@ -560,14 +560,11 @@ def __main__():
                         help="The snp table to input")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="snp_genotype_out.txt")
-<<<<<<< HEAD
     parser.add_argument("-t", "--translation_table", type=int, default=1,
                         help="The translation table to use for amino translations")
-
-=======
     parser.add_argument("-g", "--groupfile", type=str,
                         help="Output file indexed by pattern groups")
->>>>>>> 25f8cc9fcd250612390a05627d87e3306900298b
+
 
 #    parser.add_argument("-m", "--min_table", action="store_true",
 #                        help="Output a minimum table with only the patterns and codes.")
@@ -618,7 +615,7 @@ def __main__():
 
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
 
