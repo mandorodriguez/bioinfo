@@ -618,11 +618,7 @@ def __main__():
 
         for snp in snp_objects:
 
-<<<<<<< HEAD
-            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
-=======
             line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
->>>>>>> 25f8cc9fcd250612390a05627d87e3306900298b
 
             of.write(line)
 
