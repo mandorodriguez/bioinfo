@@ -1,12 +1,91 @@
 #!/usr/bin/env python
 
 import argparse
+
+from Bio.Seq import Seq
+from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 import pdb
 
 #*******************************************************************************
 # Based on the original code here:
 #   https://github.com/Henshina/Genotyper/blob/master/Geno1.py
 #*******************************************************************************
+
+
+#*******************************************************************************
+# This function is used to translate specific codons to amino acids based on
+# different translation tables. If a table isn't given then it just does a translation
+# using the IUPAC ambiguous DNA table in biopython.
+#
+# Taken from the ncbi genetics codes here:
+#   http://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi#SG2
+#
+#   http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=tgencodes#SG11
+#
+#*******************************************************************************
+def translate_codon(codon, transl_table=1):
+
+    translation_table = {
+        # 2. The Vertebrate Mitochondrial Code
+        2 : {'AGA' : '*', 'AGG' : '*', 'AUA' : 'M', 'UGA' : 'W'},
+
+        # 3. The Yeast Mitochondrial Code
+        3 : {'AUA' : 'M', 'CUU' : 'T', 'CUC' : 'T', 'CUA' : 'T', 'CUG' : 'T' , 'UGA' : 'W', 'CGA' : 'absent', 'CGC' : 'absent'},
+
+        # 4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code 
+        4 : {'UGA' : 'W'},
+
+        # 5. The Invertebrate Mitochondrial Code
+        5 : {'AGA' : 'S', 'AGG' : 'S', 'AUA' : 'M', 'UGA' : 'W'},
+
+        # 6. The Ciliate, Dasycladacean and Hexamita Nuclear Code
+        6 : {'UAA' : 'Q', 'UAG' : 'Q'},
+
+        # 9. The Echinoderm and Flatworm Mitochondrial Code
+        9 : {'AAA' : 'N', 'AGA' : 'S' , 'AGG' : 'S', 'UGA' : 'W'},
+
+        # 10. The Euplotid Nuclear Code
+        10 : {'UGA' : 'C'},
+
+        # 11. The Bacterial, Archaeal and Plant Plastid Code
+        11 : {},
+
+        # 12. The Alternative Yeast Nuclear Code
+        12 : {'CUG' : 'S'}, # Ser?
+
+        # 13. The Ascidian Mitochondrial Code
+        13 : {'AGA' : 'G', 'AGG' : 'G', 'AUA' : 'M', 'UGA' : 'W'},
+
+        # 14. The Alternative Flatworm Mitochondrial Code
+        14 : {'AAA' : 'N', 'AGA' : 'S', 'AGG' : 'S', 'UAA' : 'Y', 'UGA' : 'W'},
+
+        # 16. Chlorophycean Mitochondrial Code
+        16 : {'TAG' : 'L'},
+
+        # 21. Trematode Mitochondrial Code
+        21 : {'TGA' : 'W', 'ATA' : 'M', 'AGA' : 'S', 'AGG' : 'S', 'AAA' : 'N'},
+
+        # 22. Scenedesmus obliquus Mitochondrial Code
+        22 : {'TCA' : '*', 'TAG' : 'L'},
+
+        # 23. Thraustochytrium Mitochondrial Code
+        23 : {'AGA' : 'S', 'AGG' : 'K', 'UGA' : 'W'},
+
+        # 24. Pterobranchia Mitochondrial Code
+        24 : {'AGA' : 'S', 'AGG' : 'K', 'UGA' : 'W'},
+
+        # 25. Candidate Division SR1 and Gracilibacteria Code
+        25 : {'UGA' : 'G'},
+
+        }
+
+    try:
+        return translation_table[transl_table][codon]
+    except KeyError:
+        return str(Seq(codon, IUPACAmbiguousDNA()).translate())
+
+#************* end translate_codon function *********************
+
 
 
 
@@ -18,7 +97,7 @@ import pdb
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line, query_genes, ref_pos_index=1, ref_base_index=3):
+    def __init__(self, qindexes, line, query_genes, transl_table=1, ref_pos_index=1, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
@@ -44,7 +123,6 @@ class SNP:
         # Convert our ref counts to a string as an ID for hashing.
         self.pattern = ''.join([str(b) for b in self.pattern_list])
 
-
         # the occurance of different numbers in the pattern
         self.zeroes = self.pattern_list.count(0)
         self.ones = self.pattern_list.count(1)
@@ -55,9 +133,9 @@ class SNP:
 
 
         # lists of the genes at the positions with the number in the pattern
-        self.genes_w_one = self.list_to_string(self.get_genes(1))
-        self.genes_w_two = self.list_to_string(self.get_genes(2))
-        self.genes_w_three = self.list_to_string(self.get_genes(3))
+        self.genomes_w_one = self.list_to_string(self.get_genes(1))
+        self.genomes_w_two = self.list_to_string(self.get_genes(2))
+        self.genomes_w_three = self.list_to_string(self.get_genes(3))
 
         # A class variable for the assigned encoding to set later
         self.group = None
@@ -399,6 +477,10 @@ def __main__():
                         help="The snp table to input")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="snp_genotype_out.txt")
+    parser.add_argument("-t", "--translation_table", type=int, default=1,
+                        help="The translation table to use for amino translations")
+
+
 #    parser.add_argument("-m", "--min_table", action="store_true",
 #                        help="Output a minimum table with only the patterns and codes.")
 
@@ -448,7 +530,7 @@ def __main__():
 
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.pattern, snp.group, snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, group_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
             
