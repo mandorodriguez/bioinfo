@@ -4,6 +4,8 @@ import argparse
 
 from Bio.Seq import Seq
 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
+from Bio.Alphabet import generic_dna
+from Bio.Alphabet.IUPAC import ExtendedIUPACDNA
 import pdb
 
 #*******************************************************************************
@@ -22,10 +24,18 @@ import pdb
 #
 #   http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=tgencodes#SG11
 #
+#
+# Some info on the biopython alphabets, may need to use a different one for different
+# cases.
+#
+# http://biopython.org/DIST/docs/api/Bio.Alphabet-module.html
+#
+# http://biopython.org/DIST/docs/api/Bio.Alphabet.IUPAC-module.html
+#
 #*******************************************************************************
 def translate_codon(codon, table=1):
 
-    return str(Seq(codon, IUPACAmbiguousDNA()).translate(table=table))
+    return str(Seq(codon, ExtendedIUPACDNA()).translate(table=table))
 
 #************* end translate_codon function *********************
 
@@ -481,7 +491,7 @@ def __main__():
 #                        help="Output a minimum table with only the patterns and codes.")
 
     args = parser.parse_args()
-    pdb.set_trace()
+
     output_file = args.outfile
 
     # open the snp table and load it into some data types.
