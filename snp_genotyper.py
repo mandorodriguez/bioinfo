@@ -23,67 +23,9 @@ import pdb
 #   http://www.ncbi.nlm.nih.gov/Taxonomy/taxonomyhome.html/index.cgi?chapter=tgencodes#SG11
 #
 #*******************************************************************************
-def translate_codon(codon, transl_table=1):
+def translate_codon(codon, table=1):
 
-    translation_table = {
-        # 2. The Vertebrate Mitochondrial Code
-        2 : {'AGA' : '*', 'AGG' : '*', 'AUA' : 'M', 'UGA' : 'W'},
-
-        # 3. The Yeast Mitochondrial Code
-        # Used 'X' in place of 'absent'
-        3 : {'AUA' : 'M', 'CUU' : 'T', 'CUC' : 'T', 'CUA' : 'T', 'CUG' : 'T' , 'UGA' : 'W', 'CGA' : 'X', 'CGC' : 'X'},
-
-        # 4. The Mold, Protozoan, and Coelenterate Mitochondrial Code and the Mycoplasma/Spiroplasma Code 
-        4 : {'UGA' : 'W'},
-
-        # 5. The Invertebrate Mitochondrial Code
-        5 : {'AGA' : 'S', 'AGG' : 'S', 'AUA' : 'M', 'UGA' : 'W'},
-
-        # 6. The Ciliate, Dasycladacean and Hexamita Nuclear Code
-        6 : {'UAA' : 'Q', 'UAG' : 'Q'},
-
-        # 9. The Echinoderm and Flatworm Mitochondrial Code
-        9 : {'AAA' : 'N', 'AGA' : 'S' , 'AGG' : 'S', 'UGA' : 'W'},
-
-        # 10. The Euplotid Nuclear Code
-        10 : {'UGA' : 'C'},
-
-        # 11. The Bacterial, Archaeal and Plant Plastid Code
-        11 : {},
-
-        # 12. The Alternative Yeast Nuclear Code
-        12 : {'CUG' : 'S'}, # Ser?
-
-        # 13. The Ascidian Mitochondrial Code
-        13 : {'AGA' : 'G', 'AGG' : 'G', 'AUA' : 'M', 'UGA' : 'W'},
-
-        # 14. The Alternative Flatworm Mitochondrial Code
-        14 : {'AAA' : 'N', 'AGA' : 'S', 'AGG' : 'S', 'UAA' : 'Y', 'UGA' : 'W'},
-
-        # 16. Chlorophycean Mitochondrial Code
-        16 : {'TAG' : 'L'},
-
-        # 21. Trematode Mitochondrial Code
-        21 : {'TGA' : 'W', 'ATA' : 'M', 'AGA' : 'S', 'AGG' : 'S', 'AAA' : 'N'},
-
-        # 22. Scenedesmus obliquus Mitochondrial Code
-        22 : {'TCA' : '*', 'TAG' : 'L'},
-
-        # 23. Thraustochytrium Mitochondrial Code
-        23 : {'AGA' : 'S', 'AGG' : 'K', 'UGA' : 'W'},
-
-        # 24. Pterobranchia Mitochondrial Code
-        24 : {'AGA' : 'S', 'AGG' : 'K', 'UGA' : 'W'},
-
-        # 25. Candidate Division SR1 and Gracilibacteria Code
-        25 : {'UGA' : 'G'},
-
-        }
-
-    try:
-        return translation_table[transl_table][codon]
-    except KeyError:
-        return str(Seq(codon, IUPACAmbiguousDNA()).translate())
+    return str(Seq(codon, IUPACAmbiguousDNA()).translate(table=table))
 
 #************* end translate_codon function *********************
 
@@ -100,7 +42,7 @@ class SNP:
     #--------------------------------------------
     def __init__(self, qindexes, line, query_genes, query_aa_index,
                  ref_aa_index, ref_codon_index, query_codon_index, gene_name_index,
-                 transl_table=1, ref_pos_index=1, ref_base_index=3):
+                 table=1, ref_pos_index=1, ref_base_index=3):
 
         self.snp_data = line.split('\t')
 
@@ -120,9 +62,9 @@ class SNP:
             # This resets the Amino acids via the trans table given.
             #
             # This will now leave multiple translated aminos in the table. 
-            self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], transl_table)
+            self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], table)
             
-            self.snp_data[query_aa_index] = "/".join([translate_codon(q, transl_table) for q in self.snp_data[query_codon_index].split('/') ])
+            self.snp_data[query_aa_index] = "/".join([translate_codon(q, table) for q in self.snp_data[query_codon_index].split('/') ])
 
 
         # collect the qbases from the SNP
@@ -539,7 +481,7 @@ def __main__():
 #                        help="Output a minimum table with only the patterns and codes.")
 
     args = parser.parse_args()
-
+    pdb.set_trace()
     output_file = args.outfile
 
     # open the snp table and load it into some data types.
