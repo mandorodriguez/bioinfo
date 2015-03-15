@@ -50,16 +50,22 @@ def translate_codon(codon, table=1):
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, line, query_genes, query_aa_index,
-                 ref_aa_index, ref_codon_index, query_codon_index, gene_name_index,
-                 table=1, ref_pos_index=1, ref_base_index=3):
+    def __init__(self, qindexes, snp_row, query_genes, indexes, table=1):
 
-        self.snp_data = line.split('\t')
+        self.snp_data = snp_row.split('\t')
 
         # molecule is at index 0
         self.molecule = self.snp_data[0]
         
         self.qindexes = qindexes
+
+        ref_pos_index = indexes['refpos']
+        ref_base_index = indexes['refbase']
+        ref_codon_index = indexes['ref_codon']
+        ref_aa_index = indexes['ref_aa']
+        gene_name_index = indexes['gene_name']
+        query_codon_index = indexes['query_codon']
+        query_aa_index = indexes['query_aa']
 
         # the ref pos
         self.ref_pos = self.snp_data[ref_pos_index]
@@ -67,7 +73,7 @@ class SNP:
         # just the ref base
         self.ref_base = self.snp_data[ref_base_index]
 
-
+        
         if self.snp_data[gene_name_index] != "intergenic":
             # This resets the Amino acids via the trans table given.
             #
@@ -104,7 +110,7 @@ class SNP:
 
         self.snp_total = self.get_snp_total()
 
-        # A class variable for the assigned encoding to set later
+        # A class variable for the assigned encoding to set later, externally from this class
         self.group = None
 
     #--------------------------------------------
@@ -424,20 +430,27 @@ def load_table(table_file):
     # collect the qindexes from the header with this loop within a list
     qindexes = [indx for indx,colname in enumerate(header) if "qbase:" in colname]
 
+    # collect the names of the genomes from the header
     query_genes = [header[qi].replace("qbase:","").rstrip() for qi in qindexes]
 
-    query_aa_index = header.index('query_aa')
-    ref_aa_index = header.index('ref_aa')
-    ref_codon_index = header.index('ref_codon')
-    query_codon_index = header.index('query_codon')
-    gene_name_index = header.index('gene_name')
+
+    indexes = {}
+    indexes['molecule'] = header.index('molecule')
+    indexes['refpos'] = header.index('refpos')
+    indexes['refbase'] = header.index('refbase')
+    indexes['ref_codon'] = header.index('ref_codon')
+    indexes['query_aa'] = header.index('query_aa')
+    indexes['ref_aa'] = header.index('ref_aa')
+    indexes['query_codon'] = header.index('query_codon')
+    indexes['gene_name'] = header.index('gene_name')
+
 
     # put each line representing a SNP into a SNP object which was declared earlier
     snp_objects = []
     
     for snp_line in table_data[1:]:
 
-        snp_objects.append( SNP(qindexes, snp_line, query_genes, query_aa_index, ref_aa_index, ref_codon_index, query_codon_index, gene_name_index) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genes, indexes) )
 
 
     # returning everything in a tuple
