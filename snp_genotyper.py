@@ -412,7 +412,7 @@ class GroupDict:
         
 #-------------------------------------------------------------------------------
 
-def load_table(table_file):
+def load_table(table_file, amino_table=1):
     """
     Loads the table file into a tuple that returns the header, qindexes
     and a list of all snp objects.
@@ -446,11 +446,12 @@ def load_table(table_file):
 
 
     # put each line representing a SNP into a SNP object which was declared earlier
+    # We exclude the first line since it's the header.
     snp_objects = []
     
-    for snp_line in table_data[1:]:
+    for snp_line in table_data[1:]: 
 
-        snp_objects.append( SNP(qindexes, snp_line, query_genes, indexes) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genes, indexes, table=amino_table) )
 
 
     # returning everything in a tuple
@@ -509,7 +510,7 @@ def __main__():
 
     # open the snp table and load it into some data types.
     
-    header, qindexes, snp_objects = load_table(args.snp_table)
+    header, qindexes, snp_objects = load_table(args.snp_table, amino_table=args.translation_table)
 
     # Here I'm going to encode the snp objects in a hash
     # using the alpha incrementer.
