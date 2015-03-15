@@ -104,9 +104,9 @@ class SNP:
 
 
         # lists of the genes at the positions with the number in the pattern
-        self.genomes_w_one = self.list_to_string(self.get_genes(1))
-        self.genomes_w_two = self.list_to_string(self.get_genes(2))
-        self.genomes_w_three = self.list_to_string(self.get_genes(3))
+        self.genomes_w_one = self.list_to_string(self.get_genomes(1))
+        self.genomes_w_two = self.list_to_string(self.get_genomes(2))
+        self.genomes_w_three = self.list_to_string(self.get_genomes(3))
 
         self.snp_total = self.get_snp_total()
 
@@ -161,7 +161,7 @@ class SNP:
 
     #--------------------------------------------
 
-    def get_genes(self, num):
+    def get_genomes(self, num):
         """
         retreives all genes in the self.query_genes list that match up
         with the postion of the number in the pattern_list.
