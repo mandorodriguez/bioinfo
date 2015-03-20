@@ -50,7 +50,7 @@ def translate_codon(codon, table=1):
 class SNP:
     
     #--------------------------------------------
-    def __init__(self, qindexes, snp_row, query_genes, indexes, table=1):
+    def __init__(self, qindexes, snp_row, query_genomes, indexes, table=1):
 
         self.snp_data = snp_row.split('\t')
 
@@ -86,7 +86,7 @@ class SNP:
         # collect the qbases from the SNP
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
 
-        self.query_genes = query_genes
+        self.query_genomes = query_genomes
 
         # get the ref counts from the SNP
         self.pattern_list = self.get_pattern()
@@ -163,12 +163,12 @@ class SNP:
 
     def get_genomes(self, num):
         """
-        retreives all genes in the self.query_genes list that match up
+        retreives all genes in the self.query_genomes list that match up
         with the postion of the number in the pattern_list.
         """
-        indexes = [i for i,val in enumerate(self.pattern_list) if val == num]
+        indexes = [i for i,val in enumerate(self.pattern_list[1:]) if val == num]
 
-        return [self.query_genes[i] for i in indexes]
+        return [self.query_genomes[i] for i in indexes]
         
     #--------------------------------------------
 
@@ -178,7 +178,7 @@ class SNP:
         refbase bases match the qbase and resets if it doesn't.
         Only need to call this once on init since the SNP is immutable.
         """
-        encoding = []
+        encoding = [0]
         seen = {}
         count = 0
 
@@ -431,7 +431,7 @@ def load_table(table_file, amino_table=1):
     qindexes = [indx for indx,colname in enumerate(header) if "qbase:" in colname]
 
     # collect the names of the genomes from the header
-    query_genes = [header[qi].replace("qbase:","").rstrip() for qi in qindexes]
+    query_genomes = [header[qi].replace("qbase:","").rstrip() for qi in qindexes]
 
 
     indexes = {}
@@ -451,7 +451,7 @@ def load_table(table_file, amino_table=1):
     
     for snp_line in table_data[1:]: 
 
-        snp_objects.append( SNP(qindexes, snp_line, query_genes, indexes, table=amino_table) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genomes, indexes, table=amino_table) )
 
 
     # returning everything in a tuple
