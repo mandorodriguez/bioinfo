@@ -103,7 +103,7 @@ class SNP:
         self.info = self.set_informative()
 
 
-        # lists of the genes at the positions with the number in the pattern
+        # lists of the genomes at the positions with the number in the pattern
         self.genomes_w_one = self.list_to_string(self.get_genomes(1))
         self.genomes_w_two = self.list_to_string(self.get_genomes(2))
         self.genomes_w_three = self.list_to_string(self.get_genomes(3))
@@ -163,7 +163,7 @@ class SNP:
 
     def get_genomes(self, num):
         """
-        retreives all genes in the self.query_genomes list that match up
+        retreives all genomes in the self.query_genomes list that match up
         with the postion of the number in the pattern_list.
         """
         indexes = [i for i,val in enumerate(self.pattern_list[1:]) if val == num]
@@ -390,7 +390,7 @@ class GroupDict:
 
         molecule_refpos = [self.get_molecule_string(group, m) for m in molecule_list]
         
-        line = "\t".join([str(group), str(snp.pattern), snp.info, snp.genes_w_one, snp.genes_w_two, snp.genes_w_three] + molecule_refpos)
+        line = "\t".join([str(group), str(snp.pattern), snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three] + molecule_refpos)
         
         return line 
     #--------------------------------------------        
