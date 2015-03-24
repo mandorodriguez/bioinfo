@@ -104,6 +104,7 @@ class SNP:
 
 
         # lists of the genomes at the positions with the number in the pattern
+        self.genomes_w_zero = self.list_to_string(self.get_genomes(0))
         self.genomes_w_one = self.list_to_string(self.get_genomes(1))
         self.genomes_w_two = self.list_to_string(self.get_genomes(2))
         self.genomes_w_three = self.list_to_string(self.get_genomes(3))
@@ -390,7 +391,7 @@ class GroupDict:
 
         molecule_refpos = [self.get_molecule_string(group, m) for m in molecule_list]
         
-        line = "\t".join([str(group), str(snp.pattern), snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three] + molecule_refpos)
+        line = "\t".join([str(group), str(snp.pattern), snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, snp.genomes_w_zero] + molecule_refpos)
         
         return line 
     #--------------------------------------------        
@@ -546,11 +547,11 @@ def __main__():
         newcols_end = qindexes[0] 
 
         # First write the header.
-        of.write( "\t".join(header[0:newcols_start] + ["snp_total", "Pattern", "Group", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", "Reference Positions"] + header[newcols_end:]) )
+        of.write( "\t".join(header[0:newcols_start] + ["snp_total", "Pattern", "Group", "Informative", "Genomes_w_1", "Genomes_w_2", "Genomes_w_3", "Genomes_w_zero", "Reference Positions"] + header[newcols_end:]) )
 
         for snp in snp_objects:
 
-            line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, molecule_dict.get_string(snp)] + snp.second_half() ) 
+            line = "\t".join( snp.first_half() + [ snp.snp_total, snp.pattern, snp.group, snp.info, snp.genomes_w_one, snp.genomes_w_two, snp.genomes_w_three, snp.genomes_w_zero, molecule_dict.get_string(snp)] + snp.second_half() ) 
 
             of.write(line)
 
