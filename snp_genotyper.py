@@ -9,6 +9,11 @@ from Bio.Alphabet.IUPAC import ExtendedIUPACDNA
 import pdb
 
 #*******************************************************************************
+# Program: SNP Genotyper
+#
+# Author: Mando Rodriguez, with consulting from Brigida Rusconi
+#
+#
 # Based on the original code here:
 #   https://github.com/Henshina/Genotyper/blob/master/Geno1.py
 #*******************************************************************************
