@@ -16,7 +16,16 @@ from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio.SeqFeature import FeatureLocation
 
 
+"""
 
+Gets the true position from the blast hit via the snp position.
+
+
+-----
+
+filename:molecule filename:pos ... filename:molecule filename:pos
+
+"""
 
 
 #-------------------------------------------------------------------------------
@@ -52,6 +61,63 @@ def _parse_blast_dict(blast_file):
 
 #-------------------------------------------------------------------------------
 
+class QueryContig:
+
+    #---------------------------------------------------------------
+
+    def __init__(self, qfile, blast_data):
+
+
+        self.qfile = qfile
+        
+        self.names = self._parse_query_names(qfile)
+
+        self.hits = []
+        
+        for name in self.names:
+            
+            self.hits.append( self.get_blast_hits(name, blast_data) )
+
+        pdb.set_trace()
+    #---------------------------------------------------------------
+   
+    def _parse_query_names(self, query_file):
+    
+        fasta_seqgen = SeqIO.parse(open(query_file), 'fasta')
+
+        query_names = []
+    
+        for f in fasta_seqgen:
+
+            query_names.append(f.name)
+
+        return query_names
+
+    #---------------------------------------------------------------
+
+    def get_blast_hits(self, name, blast_data):
+        """
+        Gets all blast hits for this query contig name
+        """
+
+        blast_hits = []
+        
+        for query_result in blast_data:
+        
+            for hit in [h for h in query_result.hits if h.id == name]:
+
+                for hsp in hit.hsps:
+
+                    if hsp.hit_id == name:
+
+                        blast_hits.append(hsp)
+
+        qname = None
+        if len(blast_hits) > 0:
+            qname = blast_hits[0].query_id
+            
+        return (name, qname, blast_hits)
+
 #-------------------------------------------------------------------------------
 # Main function call
 def __main__():
@@ -63,15 +129,19 @@ def __main__():
                         help="The output file", default="blast_fetch.txt")
     parser.add_argument("-b", "--blast", type=str,
                         help="A raw Blast text file")
+    parser.add_argument('-q', '--query', nargs='*', help="list of query files separated by spaces.")
 
 
     args = parser.parse_args()
 
     output_file = args.outfile
     blast_file =args.blast
+    query_files = args.query
 
-    blast_data = _parse_blast_dict(blast_file)
+    blast_data = _parse_blast_list(blast_file)
 
+    query_contigs = [QueryContig(qf, blast_data) for qf in query_files]
+    
     pdb.set_trace()
 
 
