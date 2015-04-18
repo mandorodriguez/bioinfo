@@ -61,6 +61,60 @@ def _parse_blast_dict(blast_file):
 
 #-------------------------------------------------------------------------------
 
+def _parse_snp_positions_dict(snp_file):
+
+    num_snps = 0
+
+    snp_positions = {}
+    
+    with open(snp_file, "rU") as input_handle:
+
+        for line in input_handle:
+
+            if not line.isspace():
+
+                snp_txt = line.split()
+
+                if len(snp_txt) != 2:
+                    print "Error parsing entry \"%s\", not in form 'locus position'" % line
+                    continue
+
+                else:
+
+                    if snp_positions.get(snp_txt[0]) is None:
+
+                        try:
+                            snp_positions[snp_txt[0]] = [int(snp_txt[1])]
+                        except Exception,e:
+                            raise Exception("Error with snp: %s" % e)
+
+                    else:
+
+                        # if this refpos is in the positions for this locus, when we ignore it,
+                        # otherwise It needs to be added.
+                        try:
+                            ref_pos_value = int(snp_txt[1])
+                        except Exception, e:
+                            print "Can't add '%s' to locus %s: %s" % (snp_txt[1], snp_txt[0], e)
+                            continue
+                                    
+                        if not ref_pos_value in snp_positions[snp_txt[0]]:
+
+                               
+                            snp_positions[snp_txt[0]].append(ref_pos_value)
+
+                        else:
+
+                            print "SNP position %s is already in %s, skipping" % (snp_txt[1], snp_txt[0])
+                    
+                num_snps += 1
+
+            
+
+        print "Parsed %d snp positions from file '%s'" % (num_snps,snp_file)
+        
+#-------------------------------------------------------------------------------
+        
 class QueryContig:
 
     #---------------------------------------------------------------
@@ -123,13 +177,15 @@ class QueryContig:
 def __main__():
 
     parser = argparse.ArgumentParser()
-    #parser.add_argument("snp_table", type=str,
-    #                    help="The snp table to input")
-    parser.add_argument("-o", "--outfile", type=str,
-                        help="The output file", default="blast_fetch.txt")
+
     parser.add_argument("-b", "--blast", type=str,
                         help="A raw Blast text file")
-    parser.add_argument('-q', '--query', nargs='*', help="list of query files separated by spaces.")
+    parser.add_argument("-s", "--snp_panel", type=str,
+                        help="A SNP panel file")
+    parser.add_argument('-q', '--query', nargs='*',
+                        help="list of query files separated by spaces.")
+    parser.add_argument("-o", "--outfile", type=str,
+                        help="The output file", default="blast_fetch.txt")
 
 
     args = parser.parse_args()
