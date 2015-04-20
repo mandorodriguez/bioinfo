@@ -140,7 +140,7 @@ class SNP:
 
     def to_string(self):
 
-        return "\t".join( [self.molecule, str(self.pos)] + [qc.get_names() for qc in self.query_contigs] )
+        return "\t".join( [self.molecule, str(self.pos)] + [qc.get_ids_w_start() for qc in self.query_contigs] )
         
     
 #-------------------------------------------------------------------------------
@@ -180,17 +180,19 @@ class QueryContig:
 
     #---------------------------------------------------------------
 
-    def get_positions(self):
+    def get_ids_w_start(self):
 
+        hit_ids = []
         hit_starts = []
 
         for htuple in self.hits:
             
             for h in htuple[1]:
 
-                hit_starts.append( "%s:%s" % (h.hit_id, h.hit_start) )
+                hit_ids.append ( h.hit_id )
+                hit_starts.append( str(h.hit_start) )
 
-        return ",".join( hit_starts )
+        return "%s\t%s" % (",".join( hit_ids ), ",".join( hit_starts ))
         
     #---------------------------------------------------------------
 
@@ -218,7 +220,7 @@ class QueryContig:
 
 def get_header(query_contigs):
 
-    return "\t".join(["molecule", "pos"] + [qc[0] for qc in query_contigs])
+    return "\t".join(["molecule", "pos"] + ["hit_id:%s\thit_start:%s" % (qc[0],qc[0]) for qc in query_contigs])
 
 #-------------------------------------------------------------------------------
 # Main function call
@@ -257,9 +259,17 @@ def __main__():
         for pos in positions:
             
             snps_w_data.append( SNP(mol, pos, query_contigs, blast_data) )
-        
-    pdb.set_trace()
 
+
+    with open(output_file, 'w') as output_handle:
+        
+        output_handle.write( get_header(query_contigs) + "\n")
+        
+        for s in snps_w_data:
+            output_handle.write(s.to_string() + "\n")
+
+
+    print "Done writing table to '%s'" % output_file
 
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
