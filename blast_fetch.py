@@ -34,7 +34,9 @@ filename:molecule filename:pos ... filename:molecule filename:pos
 #   http://bugzilla.open-bio.org/attachment.cgi?id=293&action=view
 #
 def _parse_blast_list(blast_file):
-
+    """
+    Parses a blast file into a list
+    """
     b_list = []
     for qresult in SearchIO.parse(blast_file, 'blast-text'):
 
@@ -43,26 +45,14 @@ def _parse_blast_list(blast_file):
     return b_list
 
     
-#-------------------------------------------------------------------------------
-
-def _parse_blast_dict(blast_file):
-    """
-    Loads a blast file into a dictionary structure.
-    """
-    b_dict = {}
-    for qresult in SearchIO.parse(blast_file, 'blast-text'):
-
-        if b_dict.has_key(qresult.id):
-            print "Blast read collision on id '%s' in file '%s'" % (qresult.id, blast_file)
-
-        b_dict[qresult.id] = qresult
-            
-    return b_dict
 
 #-------------------------------------------------------------------------------
 
 def _parse_snp_positions_dict(snp_file):
-
+    """
+    This function just loads a snp panel file into a dictionary
+    that hashes the list of positions to the molecule.
+    """
     num_snps = 0
 
     snp_positions = {}
@@ -112,44 +102,99 @@ def _parse_snp_positions_dict(snp_file):
             
 
         print "Parsed %d snp positions from file '%s'" % (num_snps,snp_file)
-        
+
+        return snp_positions
+    
+#---------------------------------------------------------------
+   
+def _parse_query_names(query_file):
+    
+    fasta_seqgen = SeqIO.parse(open(query_file), 'fasta')
+
+    query_names = []
+    
+    for f in fasta_seqgen:
+            
+        query_names.append(f.name)
+
+    return query_names
+    
 #-------------------------------------------------------------------------------
+
+class SNP:
+    """
+    This SNP class just contains the molecule, position, and each contig file
+    to process so that it can all be output on one line. The contigs are processed
+    in the order of the list query_contig_files.
+    """
+    def __init__(self, molecule, pos, query_contigs, blast_data):
+
+
+        self.molecule = molecule
+        self.pos = pos
+        self.query_id = "%s_%d_SUBSEQ" % (molecule, pos)
+
+        self.query_contigs = [QueryContig(qc, self.query_id, blast_data) for qc in query_contigs]
+
+    #---------------------------------------------------------------
+
+    def to_string(self):
+
+        return "\t".join( [self.molecule, str(self.pos)] + [qc.get_names() for qc in self.query_contigs] )
         
+    
+#-------------------------------------------------------------------------------
+
+
 class QueryContig:
 
     #---------------------------------------------------------------
 
-    def __init__(self, qfile, blast_data):
+    def __init__(self, query_tuple, query_id, blast_data):
 
 
-        self.qfile = qfile
+        self.qfile = query_tuple[0]
         
-        self.names = self._parse_query_names(qfile)
+        self.names = query_tuple[1]
 
+        self.query_id = query_id
+        
         self.hits = []
         
         for name in self.names:
+
+            bhit_tuple = self.get_blast_hits(name, query_id, blast_data)
             
-            self.hits.append( self.get_blast_hits(name, blast_data) )
+            # if we get any blast hits that match on the tuple then we
+            # append
+            
+            if len(bhit_tuple[1]) > 0:
+                
+                self.hits.append( bhit_tuple )
 
-        pdb.set_trace()
     #---------------------------------------------------------------
-   
-    def _parse_query_names(self, query_file):
     
-        fasta_seqgen = SeqIO.parse(open(query_file), 'fasta')
+    def get_names(self):
 
-        query_names = []
-    
-        for f in fasta_seqgen:
-
-            query_names.append(f.name)
-
-        return query_names
+        return ",".join([ht[0] for ht in self.hits])
 
     #---------------------------------------------------------------
 
-    def get_blast_hits(self, name, blast_data):
+    def get_positions(self):
+
+        hit_starts = []
+
+        for htuple in self.hits:
+            
+            for h in htuple[1]:
+
+                hit_starts.append( "%s:%s" % (h.hit_id, h.hit_start) )
+
+        return ",".join( hit_starts )
+        
+    #---------------------------------------------------------------
+
+    def get_blast_hits(self, name, query_id, blast_data):
         """
         Gets all blast hits for this query contig name
         """
@@ -162,15 +207,18 @@ class QueryContig:
 
                 for hsp in hit.hsps:
 
-                    if hsp.hit_id == name:
+                    if hsp.hit_id == name and hsp.query_id == query_id:
 
                         blast_hits.append(hsp)
 
-        qname = None
-        if len(blast_hits) > 0:
-            qname = blast_hits[0].query_id
-            
-        return (name, qname, blast_hits)
+
+        return (name, blast_hits)
+
+#-------------------------------------------------------------------------------
+
+def get_header(query_contigs):
+
+    return "\t".join(["molecule", "pos"] + [qc[0] for qc in query_contigs])
 
 #-------------------------------------------------------------------------------
 # Main function call
@@ -195,9 +243,21 @@ def __main__():
     query_files = args.query
 
     blast_data = _parse_blast_list(blast_file)
+    snp_positions = _parse_snp_positions_dict(args.snp_panel)
 
-    query_contigs = [QueryContig(qf, blast_data) for qf in query_files]
-    
+    # loads the contigs with the filename into a list of tuples
+    # so they preserve the order given. Only saving the base filename.
+    query_contigs = [(os.path.splitext(os.path.basename(qf))[0], _parse_query_names(qf)) for qf in query_files]
+
+    snps_w_data = []
+
+    # Iterate over the molecule and each position in each molecule.
+    for mol,positions in snp_positions.items():
+
+        for pos in positions:
+            
+            snps_w_data.append( SNP(mol, pos, query_contigs, blast_data) )
+        
     pdb.set_trace()
 
 
