@@ -127,14 +127,14 @@ class SNP:
     to process so that it can all be output on one line. The contigs are processed
     in the order of the list query_contig_files.
     """
-    def __init__(self, molecule, pos, query_contigs, blast_data):
+    def __init__(self, molecule, pos, query_contigs, blast_data, flanking_bases=20):
 
 
         self.molecule = molecule
         self.pos = pos
         self.query_id = "%s_%d_SUBSEQ" % (molecule, pos)
 
-        self.query_contigs = [QueryContig(qc, self.query_id, blast_data) for qc in query_contigs]
+        self.query_contigs = [QueryContig(qc, self.query_id, blast_data, flanking_bases) for qc in query_contigs]
 
     #---------------------------------------------------------------
 
@@ -142,7 +142,8 @@ class SNP:
 
         return "\t".join( [self.molecule, str(self.pos)] + [qc.get_ids_w_start() for qc in self.query_contigs] )
         
-    
+
+
 #-------------------------------------------------------------------------------
 
 
@@ -150,7 +151,7 @@ class QueryContig:
 
     #---------------------------------------------------------------
 
-    def __init__(self, query_tuple, query_id, blast_data):
+    def __init__(self, query_tuple, query_id, blast_data, flanking_bases=20):
 
 
         self.qfile = query_tuple[0]
@@ -158,6 +159,8 @@ class QueryContig:
         self.names = query_tuple[1]
 
         self.query_id = query_id
+
+        self.flanking_bases = flanking_bases
         
         self.hits = []
         
@@ -184,15 +187,17 @@ class QueryContig:
 
         hit_ids = []
         hit_starts = []
-
+        true_snp_pos = []
+        
         for htuple in self.hits:
             
             for h in htuple[1]:
 
                 hit_ids.append ( h.hit_id )
                 hit_starts.append( str(h.hit_start) )
+                true_snp_pos.append( self.snp_offset(h) )
 
-        return "%s\t%s" % (",".join( hit_ids ), ",".join( hit_starts ))
+        return "%s\t%s" % (",".join( hit_ids ), ",".join( true_snp_pos ) )
         
     #---------------------------------------------------------------
 
@@ -216,11 +221,39 @@ class QueryContig:
 
         return (name, blast_hits)
 
+    #-------------------------------------------------------------------------------
+    def snp_offset(self, hit):
+        """
+        This calculates the offset to get the true snp position in the
+        blast hit.
+        """
+
+
+        offset = self.flanking_bases - hit.query_start + 1
+
+        # here we slide over if we have any indels on the left hand side of the snp
+        if str(hit.query.seq).count('-') > 0:
+
+
+            indel_indexes = [i for i,k in enumerate(str(hit.query.seq)) if k == '-']
+
+            for i in indel_indexes:
+                if i < offset:
+                    offset += 1
+                            
+        if offset > hit.hit_end:
+            return "Error[Q(%s,%s), H(%s,%s)]" % (hit.query_start, hit.query_end, hit.hit_start, hit.hit_end)
+            #offset = -1
+
+        # we add one to the offset just before returning so we have the position from start 1
+        return str(hit.hit_start + offset+1)
+
+    
 #-------------------------------------------------------------------------------
 
 def get_header(query_contigs):
 
-    return "\t".join(["molecule", "pos"] + ["hit_id:%s\thit_start:%s" % (qc[0],qc[0]) for qc in query_contigs])
+    return "\t".join(["molecule", "pos"] + ["hit_id:%s\thit_pos:%s" % (qc[0],qc[0]) for qc in query_contigs])
 
 #-------------------------------------------------------------------------------
 # Main function call
