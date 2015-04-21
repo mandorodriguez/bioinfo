@@ -21,10 +21,6 @@ from Bio.SeqFeature import FeatureLocation
 Gets the true position from the blast hit via the snp position.
 
 
------
-
-filename:molecule filename:pos ... filename:molecule filename:pos
-
 """
 
 
@@ -241,7 +237,7 @@ class QueryContig:
                 if i < offset:
                     offset += 1
                             
-        if offset > hit.hit_end:
+        if offset > hit.hit_end or offset < 0:
             return "Error[Q(%s,%s), H(%s,%s)]" % (hit.query_start, hit.query_end, hit.hit_start, hit.hit_end)
             #offset = -1
 
