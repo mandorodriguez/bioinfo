@@ -15,6 +15,7 @@ from Bio import SearchIO
 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
 from Bio.SeqFeature import FeatureLocation
 
+from multiprocessing.dummy import Pool as ThreadPool
 
 """
 
@@ -139,6 +140,19 @@ class SNP:
         return "\t".join( [self.molecule, str(self.pos)] + [qc.get_ids_w_start() for qc in self.query_contigs] )
         
 
+#-------------------------------------------------------------------------------
+
+def compute_snp(st):
+    """
+    This will compute a snp for the blast fetch in threaded mode.
+    Nothing fancy. Work is all in the SNP class.
+    """
+    try: 
+        return SNP(st[0], st[1], st[2], st[3]) 
+    except Exception,e:
+        err_str= "Unable to compute snp entry for %s position %s: %s" % (st[0], st[1], e)
+        print err_str
+        raise Exception(err_str)
 
 #-------------------------------------------------------------------------------
 
@@ -263,6 +277,8 @@ def __main__():
                         help="A SNP panel file")
     parser.add_argument('-q', '--query', nargs='*',
                         help="list of query files separated by spaces.")
+    parser.add_argument("-n", "--num_threads", type=int,
+                        help="Number of threads to use", default=0)
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="blast_fetch.txt")
 
@@ -272,6 +288,7 @@ def __main__():
     output_file = args.outfile
     blast_file =args.blast
     query_files = args.query
+    num_threads = args.num_threads
 
     blast_data = _parse_blast_list(blast_file)
     snp_positions = _parse_snp_positions_dict(args.snp_panel)
@@ -282,12 +299,41 @@ def __main__():
 
     snps_w_data = []
 
-    # Iterate over the molecule and each position in each molecule.
-    for mol,positions in snp_positions.items():
+    # here we run things in threaded mode to speed things up if the option is given
+    if num_threads > 0:
 
-        for pos in positions:
+        # iterate over each mol,position and create input tuples
+        inputs = []
+        for mol,positions in snp_positions.items():
+
+            print "Setting up %d SNP jobs for molecule '%s'" % (len(positions),mol)
+
+            for pos in positions:
             
-            snps_w_data.append( SNP(mol, pos, query_contigs, blast_data) )
+                inputs.append( (mol, pos, query_contigs, blast_data) )
+
+
+        print "Running %d individual input jobs for processing on %d threads..." % (len(inputs), num_threads)
+            
+        pool = ThreadPool(num_threads)
+        pool_output = pool.map(compute_snp, inputs)
+        pool.close()
+        pool.join()
+            
+        print "Collecting results..."
+
+        inputs = None # not needed anymore
+
+        snps_w_data = [r for r in pool_output]
+
+    else:
+        
+        # Iterate over the molecule and each position in each molecule.
+        for mol,positions in snp_positions.items():
+
+            for pos in positions:
+            
+                snps_w_data.append( SNP(mol, pos, query_contigs, blast_data) )
 
 
     with open(output_file, 'w') as output_handle:
