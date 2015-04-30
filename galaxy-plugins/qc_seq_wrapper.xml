@@ -44,9 +44,7 @@
     </outputs>
 
     <tests>
-        <!--
-             No tests for now
-        -->
+        <!-- No tests for now -->
     </tests>
 
     <help>
