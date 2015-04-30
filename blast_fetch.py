@@ -25,7 +25,7 @@ Gets the true position from the blast hit via the snp position.
 """
 
 
-#-------------------------------------------------------------------------------
+#************************************************************************************
 #
 # full example for parsing blast files here:
 #   http://bugzilla.open-bio.org/attachment.cgi?id=293&action=view
@@ -43,7 +43,7 @@ def _parse_blast_list(blast_file):
 
     
 
-#-------------------------------------------------------------------------------
+#*************************************************************************************
 
 def _parse_snp_positions_dict(snp_file):
     """
@@ -103,20 +103,9 @@ def _parse_snp_positions_dict(snp_file):
         return snp_positions
     
 #---------------------------------------------------------------
-   
-def _parse_query_names(query_file):
-    
-    fasta_seqgen = SeqIO.parse(open(query_file), 'fasta')
 
-    query_names = []
     
-    for f in fasta_seqgen:
-            
-        query_names.append(f.name)
-
-    return query_names
-    
-#-------------------------------------------------------------------------------
+#********************************************************************************
 
 class SNP:
     """
@@ -124,14 +113,14 @@ class SNP:
     to process so that it can all be output on one line. The contigs are processed
     in the order of the list query_contig_files.
     """
-    def __init__(self, molecule, pos, query_contigs, blast_data, flanking_bases=20):
+    def __init__(self, molecule, pos, query_files, blast_data, flanking_bases=20):
 
 
         self.molecule = molecule
         self.pos = pos
         self.query_id = "%s_%d_SUBSEQ" % (molecule, pos)
 
-        self.query_contigs = [QueryContig(qc, self.query_id, blast_data, flanking_bases) for qc in query_contigs]
+        self.query_contigs = [QueryContig(qf, self.query_id, blast_data, flanking_bases) for qf in query_files]
 
     #---------------------------------------------------------------
 
@@ -154,19 +143,19 @@ def compute_snp(st):
         print err_str
         raise Exception(err_str)
 
-#-------------------------------------------------------------------------------
+#***********************************************************************************
 
 
 class QueryContig:
 
     #---------------------------------------------------------------
 
-    def __init__(self, query_tuple, query_id, blast_data, flanking_bases=20):
+    def __init__(self, query_file, query_id, blast_data, flanking_bases=20):
 
 
-        self.qfile = query_tuple[0]
+        self.qfile = query_file.metafilename
         
-        self.names = query_tuple[1]
+        self.names = query_file.names
 
         self.query_id = query_id
 
@@ -258,12 +247,65 @@ class QueryContig:
         # we add one to the offset just before returning so we have the position from start 1
         return str(hit.hit_start + offset+1)
 
+
+#*********************************************************************************
+
+class QueryFile:
+    """
+    Just a class to keep track of the query contig files and the names
+    that they load.
+    """
+    #--------------------------------------------------------------------------
+
+    def __init__(self, query_filename):
+
+
+        self.filename = ""
+        self.metafilename = ""
+        
+        lineparts = query_filename.split(':')
+
+        if len(lineparts) == 2:
+
+            self.filename = lineparts[0]
+            self.metafilename = lineparts[1].replace(' ','_')
+
+        elif len(lineparts) == 1:
+
+            self.filename = lineparts[0]
+
+            try:
+                self.metafilename = os.path.splitext(os.path.basename(lineparts[0]))[0]
+            except Exception:
+                self.metafilename = lineparts[0]
+
+        else:
+                    
+            raise Exception("Can't parse '%s', not a valid query contig FASTA filename" % line)
+
+
+        self.names = self._parse_query_names(self.filename)
+
+    #--------------------------------------------------------------------------
+
+   
+    def _parse_query_names(self,query_file):
     
-#-------------------------------------------------------------------------------
+        fasta_seqgen = SeqIO.parse(open(query_file), 'fasta')
 
-def get_header(query_contigs):
+        query_names = []
+    
+        for f in fasta_seqgen:
+            
+            query_names.append(f.name)
 
-    return "\t".join(["molecule", "pos"] + ["hit_id:%s\thit_pos:%s" % (qc[0],qc[0]) for qc in query_contigs])
+        return query_names
+    
+#*******************************************************************************
+
+def get_header(query_files):
+
+    return "\t".join(["molecule", "pos"] + ["hit_id:%s\thit_pos:%s" % (qf.metafilename,qf.metafilename) for qf in query_files])
 
 #-------------------------------------------------------------------------------
 # Main function call
@@ -273,11 +315,11 @@ def __main__():
 
     parser.add_argument("-b", "--blast", type=str,
                         help="A raw Blast text file")
-    parser.add_argument("-s", "--snp_panel", type=str,
+    parser.add_argument("-s", "--snp-panel", type=str,
                         help="A SNP panel file")
     parser.add_argument('-q', '--query', nargs='*',
                         help="list of query files separated by spaces.")
-    parser.add_argument("-n", "--num_threads", type=int,
+    parser.add_argument("-n", "--num-threads", type=int,
                         help="Number of threads to use", default=0)
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="blast_fetch.txt")
@@ -293,9 +335,9 @@ def __main__():
     blast_data = _parse_blast_list(blast_file)
     snp_positions = _parse_snp_positions_dict(args.snp_panel)
 
-    # loads the contigs with the filename into a list of tuples
-    # so they preserve the order given. Only saving the base filename.
-    query_contigs = [(os.path.splitext(os.path.basename(qf))[0], _parse_query_names(qf)) for qf in query_files]
+    # loads the contig files into a list of objects. The order
+    # of these will be the processing and output table order.
+    query_files = [QueryFile(qf) for qf in query_files]
 
     snps_w_data = []
 
@@ -304,13 +346,14 @@ def __main__():
 
         # iterate over each mol,position and create input tuples
         inputs = []
+        
         for mol,positions in snp_positions.items():
 
             print "Setting up %d SNP jobs for molecule '%s'" % (len(positions),mol)
 
             for pos in positions:
             
-                inputs.append( (mol, pos, query_contigs, blast_data) )
+                inputs.append( (mol, pos, query_files, blast_data) )
 
 
         print "Running %d individual input jobs for processing on %d threads..." % (len(inputs), num_threads)
@@ -333,12 +376,12 @@ def __main__():
 
             for pos in positions:
             
-                snps_w_data.append( SNP(mol, pos, query_contigs, blast_data) )
+                snps_w_data.append( SNP(mol, pos, query_files, blast_data) )
 
 
     with open(output_file, 'w') as output_handle:
         
-        output_handle.write( get_header(query_contigs) + "\n")
+        output_handle.write( get_header(query_files) + "\n")
         
         for s in snps_w_data:
             output_handle.write(s.to_string() + "\n")
