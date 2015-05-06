@@ -8,11 +8,14 @@
 ## The command is a Cheetah template which allows some Python based syntax.
 ## Lines starting hash hash are comments. Galaxy will turn newlines into spaces
 ## ! We only have a simple single command here.
-cat ${input_sequence} | vcf-consensus file.vcf.gz > out.fasta
+cp ${input_vcf} in.vcf
+bgzip in.vcf
+cat ${input_sequence} | vcf-consensus in.vcf.gz > out.fasta
     </command>
 
     <inputs>
         <param format="fasta" name="input_sequence" type="data" label="Input FASTA file" help=""/>
+        <param format="vcf" name="input_vcf" type="data" label="Input VCF file" help=""/>
     </inputs>
     <outputs>
        <data format="fasta" from_work_dir="out.fasta" name="outfile_1" />
@@ -29,6 +32,8 @@ Generates a consensus sequence with VCF
 
 ::
 
-  cat ref.fa | vcf-consensus file.vcf.gz > out.fa
+   cp input_vcf in.vcf
+   bgzip in.vcf
+   cat input_sequence | vcf-consensus in.vcf.gz > out.fasta
     </help>
 </tool>
