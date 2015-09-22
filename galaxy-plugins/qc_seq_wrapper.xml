@@ -1,4 +1,4 @@
-<tool id="qc_seq" name="QC Seq" version="1.0">
+<tool id="qc_seq" name="QC Seq" version="1.1">
 
     <!-- syntax for the tool xml  https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax -->
     <description>Script to verify coverage of hit bases</description>
