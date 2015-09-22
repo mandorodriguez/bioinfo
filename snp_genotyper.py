@@ -79,13 +79,15 @@ class SNP:
         self.ref_base = self.snp_data[ref_base_index]
 
         
-        #if self.snp_data[gene_name_index] != "intergenic":
+        if self.snp_data[gene_name_index] != "intergenic":
             # This resets the Amino acids via the trans table given.
             #
             # This will now leave multiple translated aminos in the table. 
-        #    self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], table)
+            #    self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], table)
+
+            self.snp_data[query_aa_index] = "/".join([translate_codon(q, table) for q in self.snp_data[query_codon_index].split('/') ])
+
             
-        #    self.snp_data[query_aa_index] = "/".join([translate_codon(q, table) for q in self.snp_data[query_codon_index].split('/') ])
 
 
         # collect the qbases from the SNP
