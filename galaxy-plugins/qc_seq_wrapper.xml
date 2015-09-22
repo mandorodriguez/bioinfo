@@ -28,7 +28,7 @@
         <!-- This is for the file that contains the snp panel inputs  -->
         <param format="txt" name="snp_table_file" type="data" label="SNP table for SNP distribution" help=""/>
 
-        <param format="bam" name="mpileup_file" type="data" label="Input mpileup BAM file" help=""/>
+        <param format="pileup" name="mpileup_file" type="data" label="Input mpileup BAM file" help=""/>
 
         <param format="txt" name="query_qc_file" type="data" label="Positions in BLAST for hits" help=""/>
 
