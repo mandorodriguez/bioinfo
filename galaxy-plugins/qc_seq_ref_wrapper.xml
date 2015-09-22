@@ -1,4 +1,4 @@
-<tool id="qc_seq_ref" name="QC Seq Ref" version="1.1">
+<tool id="qc_seq_ref" name="QC Seq Ref" version="1.2">
 
     <!-- syntax for the tool xml  https://wiki.galaxyproject.org/Admin/Tools/ToolConfigSyntax -->
     <description>Script to verify coverage of hit bases</description>
@@ -25,8 +25,6 @@
         <param format="txt" name="snp_table_file" type="data" label="SNP table for SNP distribution" help=""/>
 
         <param format="pileup" name="mpileup_file" type="data" label="Input mpileup BAM file" help=""/>
-
-        <param format="txt" name="query_qc_file" type="data" label="Positions in BLAST for hits" help=""/>
 
         <param name="coverage" type="integer" value="0" label="Coverage threshold" />
 
