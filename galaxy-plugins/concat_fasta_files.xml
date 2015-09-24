@@ -1,0 +1,32 @@
+<tool id="concat_fasta_files" name="Concatenate multiple fasta files">
+    <description>concat-fasta-files</description>
+    <command>
+        cat #for $q in $input_files# $q #end for# > $out_file1
+    </command>
+    <inputs>
+        <param name="input_files" type="data" multiple="true" optional="false" format="fasta" label="Input text files(s)" help="One or more FASTA files" />
+    </inputs>
+    <outputs>
+        <data name="out_file1" format="fasta" metadata_source="input_files"/>
+    </outputs>
+    <tests>
+    </tests>
+    <help>
+------
+
+.. class:: infomark
+
+Provides a list of all fasta files in your history and allows you to select and concat them all together.
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez
+    </help>
+</tool>
+
+
+
