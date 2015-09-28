@@ -1,5 +1,5 @@
-<tool id="concat_text_files" name="Concatenate multiple text files">
-    <description>concat-text-files</description>
+<tool id="concat_text_files" name="Concat text files" version="1.0.0">
+    <description>Concatenates any text based files you select from your history</description>
     <command>
         cat #for $q in $input_files# $q #end for# > $out_file1
     </command>
