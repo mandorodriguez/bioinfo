@@ -32,5 +32,19 @@ samtools view -bS $input_sam_file | samtools sort - sorted_bam_output
 **What it does**
 
 Uses samtools to convert a SAM file into an ordered BAM file.
+
+::
+
+  samtools view -bS $input_sam_file | samtools sort - sorted_bam_output 
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez
+
+
     </help>
 </tool>

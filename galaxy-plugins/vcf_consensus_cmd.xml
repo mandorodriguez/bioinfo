@@ -35,5 +35,14 @@ Generates a consensus sequence with VCF
    cp input_vcf in.vcf
    bgzip in.vcf
    cat input_sequence | vcf-consensus in.vcf.gz > out.fasta
+
+------
+
+.. class:: infomark
+
+**Tool Author**
+
+Mando Rodriguez
+
     </help>
 </tool>
