@@ -6,7 +6,7 @@
     <inputs>
         <param name="input_files" type="data" multiple="true" optional="false" format="fasta" label="Input text files(s)" help="One or more FASTA files">
           <validator type="dataset_ok_validator" />
-          <validator type="unspecified_build" />
+          <validator type="metadata" />
         </param>
     </inputs>
     <outputs>
