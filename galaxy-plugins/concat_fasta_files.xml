@@ -1,4 +1,4 @@
-<tool id="concat_fasta_files" name="Concat fasta files" version="1.0.1">
+<tool id="concat_fasta_files" name="Concat fasta files" version="1.0.2">
     <description>Concatenates fasta files you select from your history</description>
     <command>
         cat #for $q in $input_files# $q #end for# > $out_file1
@@ -6,6 +6,7 @@
     <inputs>
         <param name="input_files" type="data" multiple="true" optional="false" format="fasta" label="Input text files(s)" help="One or more FASTA files">
           <validator type="dataset_ok_validator" />
+          <validator type="unspecified_build" />
         </param>
     </inputs>
     <outputs>
