@@ -1,4 +1,4 @@
-<tool id="concat_fasta_files" name="Concat fasta files" version="1.0.0">
+<tool id="concat_fasta_files" name="Concat fasta files" version="1.0.1">
     <description>Concatenates fasta files you select from your history</description>
     <command>
         cat #for $q in $input_files# $q #end for# > $out_file1
