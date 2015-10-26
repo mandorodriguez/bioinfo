@@ -5,8 +5,9 @@
     </command>
     <inputs>
         <param name="input_files" type="data" multiple="true" optional="false" format="fasta" label="Input text files(s)" help="One or more FASTA files">
-          <validator type="dataset_ok_validator" />
-          <validator type="metadata" />
+          <options>
+            <filter type="data_meta" ref="input_files" key="dbkey" column="0" />
+          </options>
         </param>
     </inputs>
     <outputs>
