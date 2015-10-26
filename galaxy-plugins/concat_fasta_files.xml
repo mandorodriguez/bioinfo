@@ -5,9 +5,8 @@
     </command>
     <inputs>
         <param name="input_files" type="data" multiple="true" optional="false" format="fasta" label="Input text files(s)" help="One or more FASTA files">
-          <options>
-            <filter type="data_meta" ref="input_files" key="dbkey" column="0" />
-          </options>
+          <validator type="dataset_ok_validator" />
+          <validator type="unspecified_build" />
         </param>
     </inputs>
     <outputs>
@@ -35,6 +34,5 @@ Does not account for any newlines in the files
 Mando Rodriguez
     </help>
 </tool>
-
 
 
