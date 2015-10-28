@@ -1,4 +1,4 @@
-<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1">
+<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1.1">
     <description>Downloads a set of paired reads by their accession number using fastq-dump tool from sra-toolkit.</description>
     <requirements>
        <!-- Should just use the samtools that's installed in the path -->
