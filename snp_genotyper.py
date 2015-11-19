@@ -39,7 +39,10 @@ import pdb
 #
 #*******************************************************************************
 def translate_codon(codon, table=1):
-
+    if codon == "--":
+        return "--"
+    elif codon == "indel":
+        return "indel"
     return str(Seq(codon, ExtendedIUPACDNA()).translate(table=table))
 
 #************* end translate_codon function *********************
@@ -77,18 +80,6 @@ class SNP:
 
         # just the ref base
         self.ref_base = self.snp_data[ref_base_index]
-
-        
-        if self.snp_data[gene_name_index] != "intergenic":
-            # This resets the Amino acids via the trans table given.
-            #
-            # This will now leave multiple translated aminos in the table. 
-            #    self.snp_data[ref_aa_index] = translate_codon(self.snp_data[ref_codon_index], table)
-
-            self.snp_data[query_aa_index] = "/".join([translate_codon(q, table) for q in self.snp_data[query_codon_index].split('/') ])
-
-            
-
 
         # collect the qbases from the SNP
         self.qbases = [self.snp_data[qi] for qi in self.qindexes]
@@ -420,7 +411,7 @@ class GroupDict:
         
 #-------------------------------------------------------------------------------
 
-def load_table(table_file, amino_table=1):
+def load_table(table_file):
     """
     Loads the table file into a tuple that returns the header, qindexes
     and a list of all snp objects.
@@ -459,7 +450,7 @@ def load_table(table_file, amino_table=1):
     
     for snp_line in table_data[1:]: 
 
-        snp_objects.append( SNP(qindexes, snp_line, query_genomes, indexes, table=amino_table) )
+        snp_objects.append( SNP(qindexes, snp_line, query_genomes, indexes) )
 
 
     # returning everything in a tuple
@@ -518,7 +509,7 @@ def __main__():
 
     # open the snp table and load it into some data types.
     
-    header, qindexes, snp_objects = load_table(args.snp_table, amino_table=args.translation_table)
+    header, qindexes, snp_objects = load_table(args.snp_table)
 
     # Here I'm going to encode the snp objects in a hash
     # using the alpha incrementer.
