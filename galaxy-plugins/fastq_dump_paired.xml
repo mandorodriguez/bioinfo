@@ -1,4 +1,4 @@
-<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1.2">
+<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1.3">
     <description>Downloads a set of paired reads by their accession number using fastq-dump tool from sra-toolkit.</description>
     <requirements>
        <!-- Should just use the samtools that's installed in the path -->
@@ -37,7 +37,7 @@ Performs a fastq-dump with the split-3 option.
 
 ::
 
-  fastq-dump --log-level fatal --split-3 --accession accession_number
+  fastq-dump --log-level fatal --split-3 --accession accession_number --ncbi_error_report never
 
 
 Data is stored in fastqsanger format. 
