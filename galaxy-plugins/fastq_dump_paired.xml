@@ -8,7 +8,7 @@
 ## The command is a Cheetah template which allows some Python based syntax.
 ## Lines starting hash hash are comments. Galaxy will turn newlines into spaces
 ## ! We only have a simple single command here.
-fastq-dump --log-level fatal --split-3 --accession ${accession_number};
+fastq-dump --log-level fatal --split-3 --accession ${accession_number} --ncbi_error_report never;
 ls -lh | grep ${accession_number};
 mv -v ${accession_number}_1.fastq R1.fastq;
 mv -v ${accession_number}_2.fastq R2.fastq;
