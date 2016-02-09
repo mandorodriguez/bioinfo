@@ -327,7 +327,7 @@ class MoleculeDict:
 
     #-----------------------------------------------
     def get_string(self, snp, unique=False):
-        
+
         if len(self.get(snp)) > 0:
 
             items = []
@@ -553,7 +553,7 @@ def __main__():
 
             of.write(line)
 
-
+            pdb.set_trace()
     print "Output %d SNPs to file %s" % (len(snp_objects), output_file)
 
 
