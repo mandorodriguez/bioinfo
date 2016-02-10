@@ -14,13 +14,10 @@
   </requirements>
   <version_command>prokka --version</version_command>
   <command>
-    prokka
+    prokka_batch.py
     --cpus \${GALAXY_SLOTS:-8}
     --quiet ## to avoid non-error messages written to stderr
     --outdir outdir --prefix prokka ## used in outputs section
-    #if $locustag
-      --locustag "$locustag"
-    #end if
     #if str($increment)
       --increment $increment
     #end if
@@ -35,21 +32,7 @@
     #else
       --compliant
     #end if
-    #if $centre
-      --centre "$centre"
-    #end if
-    #if $genus
-      --genus "$genus"
-    #end if
-    #if $species
-      --species "$species"
-    #end if
-    #if $strain
-      --strain "$strain"
-    #end if
-    #if $plasmid
-      --plasmid "$plasmid"
-    #end if
+
     --kingdom $kingdom.kingdom_select
     #if str($kingdom.gcode)
       --gcode $kingdom.gcode
@@ -78,15 +61,17 @@
     #if $notrna
       --notrna
     #end if
-    $input
+    --contigs $input
+    $arg_table
   </command>
   <!-- Need to use stdio because prokka writes some warnings on stderr (due to the "use warnings" Perl pragma) -->
   <stdio>
     <exit_code range="1:" />
   </stdio>
   <inputs>
+    <param format="txt" name="arg_table" type="data" label="Argument table file" help="File contains tab delimited arguments for strain, locustag, centre, genus, species plasmid kingdom"/>
+
     <param name="input" type="data" format="fasta" label="Contigs to annotate" help="FASTA format" />
-    <param name="locustag" type="text" value="PROKKA" label="Locus tag prefix (--locustag)" />
     <param name="increment" type="integer" value="1" optional="true" label="Locus tag counter increment (--increment)">
       <validator type="in_range" min="1" />
     </param>
@@ -105,32 +90,6 @@
         <param name="mincontig" type="integer" value="200" optional="true" label="Minimum contig size (--mincontiglen)" help="NCBI needs 200" />
       </when>
       <when value="yes" />
-    </conditional>
-    <param name="centre" type="text" value="" label="Sequencing centre ID (--centre)" />
-    <param name="genus" type="text" value="" label="Genus name (--genus)" help="May be used to aid annotation, see --usegenus below" />
-    <param name="species" type="text" value="" label="Species name (--species)" />
-    <param name="strain" type="text" value="" label="Strain name (--strain)" />
-    <param name="plasmid" type="text" value="" label="Plasmid name or identifier (--plasmid)" />
-    <conditional name="kingdom">
-      <param name="kingdom_select" type="select" label="Kingdom (--kingdom)">
-        <option value="Archaea">Archaea</option>
-        <option value="Bacteria" selected="true">Bacteria</option>
-        <option value="Viruses">Viruses</option>
-      </param>
-      <when value="Archaea">
-        <param name="gcode" type="integer" value="11" min="1" max="23" optional="true" label="Genetic code (transl_table)" /><!-- max should be 25, but prodigal would crash -->
-      </when>
-      <when value="Bacteria">
-        <param name="gcode" type="integer" value="11" min="1" max="23" optional="true" label="Genetic code (transl_table)" /><!-- max should be 25, but prodigal would crash -->
-        <!-- <param name="gram" type="select" display="radio" label="Gram (- -gram)">
-          <option selected="true" value="none">N/A</option>
-          <option value="pos">positive</option>
-          <option value="neg">negative</option>
-        </param> SignalP is not FOSS -->
-      </when>
-      <when value="Viruses">
-        <param name="gcode" type="integer" value="1" min="1" max="23" optional="true" label="Genetic code (transl_table)" /><!-- max should be 25, but prodigal would crash -->
-      </when>
     </conditional>
     <param name="usegenus" type="boolean" checked="false" label="Use genus-specific BLAST database (--usegenus)" help="Will use the BLAST database for the genus specified above, if installed" />
     <param name="proteins" type="data" format="fasta" optional="true" label="Optional FASTA file of trusted proteins to first annotate from (--proteins)" />
@@ -162,6 +121,21 @@
 Prokka_ is a software tool to rapidly annotate bacterial, archaeal and viral genomes, and produce output files that require only minor tweaking to submit to GenBank/ENA/DDBJ.
 
 .. _Prokka: http://www.vicbioinformatics.com/software.prokka.shtml
+
+
+------
+
+.. class:: infomark
+
+**arg table input file**
+
+The arg table has tab delimited input for
+
+strain, locustag, centre, genus, species, plasmid, kingdom
+
+It will look for a match in the table for the strain against the fasta files metafile name in galaxy.
+
+------
 
 **Output files**
 
