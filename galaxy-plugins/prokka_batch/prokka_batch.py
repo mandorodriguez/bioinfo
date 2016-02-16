@@ -128,7 +128,9 @@ out = subprocess.Popen(cmd,stdout=subprocess.PIPE,
 if not out.stdout is None:
     for line in iter(out.stdout.readline,b''):
         print line.rstrip()
-        
+
+print "\n\nDONE!"
+
 #--------------------------------------------------------------------------------
 
     

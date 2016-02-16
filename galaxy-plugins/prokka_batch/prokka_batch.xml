@@ -122,6 +122,11 @@ Prokka_ is a software tool to rapidly annotate bacterial, archaeal and viral gen
 
 .. _Prokka: http://www.vicbioinformatics.com/software.prokka.shtml
 
+------
+
+.. class:: infomark
+
+Slight modfication to original wrapper by Mando Rodriguez to make it more friendly to batch jobs
 
 ------
 
