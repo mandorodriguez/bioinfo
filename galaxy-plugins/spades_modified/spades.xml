@@ -1,4 +1,4 @@
-<tool id="spades_hack" name="spades_hack" version="1.0">
+<tool id="spades_hack" name="spades_modified" version="1.0">
   <description>SPAdes genome assembler for regular and single-cell projects (Hack)</description>
   <requirements>
     <requirement type="package" version="3.5.0">spades</requirement>
