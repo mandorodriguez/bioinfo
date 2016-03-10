@@ -1,4 +1,4 @@
-<tool id="bowtie2_hack" name="Bowtie2 no SAM/BAM Conversion" version="0.6">
+<tool id="bowtie2_no_sambam" name="Bowtie2 no SAM/BAM Conversion" version="0.6">
     <!-- Wrapper compatible with Bowtie version 2.2.4 -->
     <description>- map reads against reference genome. Does not perform a SAM/BAM conversion on the output file</description>
     <macros>

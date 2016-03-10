@@ -1,29 +1,27 @@
 <?xml version="1.0"?>
-<tool id="freebayes_with_lists" name="FreeBayes (Lists)" version="0.1.0">
+<tool id="freebayes_list" name="FreeBayes for lists" version="0.4.1.0">
   <requirements>
     <requirement type="package" version="0_9_20_b040236">freebayes</requirement>
     <requirement type="package" version="0.1.18">samtools</requirement>
   </requirements>
-  <description> - bayesian genetic variant detector</description>
+  <description> - bayesian genetic variant detector. This version will propogate the name to the output file for easier workflow integration.</description>
   <command>
     ##set up input files
 
     #set $reference_fasta_filename = "localref.fa"
     
+    #if str( $reference_source.reference_source_selector ) == "history":
+        ln -s "${reference_source.ref_file}" "${reference_fasta_filename}" &amp;&amp;
+        samtools faidx "${reference_fasta_filename}" 2&gt;&amp;1 || echo "Error running samtools faidx for FreeBayes" &gt;&amp;2 &amp;&amp;
+    #else:
+        #set $reference_fasta_filename = str( $reference_source.ref_file.fields.path )
+    #end if
 
-    ln -s "${ref_file}" "${reference_fasta_filename}" &amp;&amp;
-    samtools faidx "${reference_fasta_filename}" 2&gt;&amp;1 || echo "Error running samtools faidx for FreeBayes" &gt;&amp;2 &amp;&amp;
-
-
-    ## ---------------- Go through lists of bam files and add to command --- -------------------
-    ## -- this sets up the bam files. Not sure if this can be changed. 
-    
-    #for $bam_count, $input_bam in enumerate( $input_bams ):
-        ln -s "$input_bam" "localbam_${bam_count}.bam" &amp;&amp;
-        ln -s "${input_bam.metadata.bam_index}" "localbam_${bam_count}.bam.bai" &amp;&amp;
+    #for $bam_count, $input_bam in enumerate( $reference_source.input_bams ):
+        ln -s "${input_bam.input_bam}" "localbam_${bam_count}.bam" &amp;&amp;
+        ln -s "${input_bam.input_bam.metadata.bam_index}" "localbam_${bam_count}.bam.bai" &amp;&amp;
     #end for
     
-
     ## Tabixize optional input_varinat_vcf file (for --variant-input option)
     
     #if ( str( $options_type.options_type_selector ) == 'cline' or str( $options_type.options_type_selector ) == 'full' ) and $options_type.optional_inputs.optional_inputs_selector and str( $options_type.optional_inputs.input_variant_type.input_variant_type_selector ) == "provide_vcf":
@@ -36,7 +34,7 @@
     ##COMMAND LINE STARTS HERE
     
     freebayes
-    #for $bam_count, $input_bam in enumerate( $input_bams ):
+    #for $bam_count, $input_bam in enumerate( $reference_source.input_bams ):
         --bam "localbam_${bam_count}.bam"
     #end for
     --fasta-reference "${reference_fasta_filename}"
@@ -230,12 +228,31 @@
   </command>
   
   <inputs>
-
-    <param name="input_bams" type="data" format="bam" label="BAM file" multiple="true" optional="false" size="50"/> 
-
-
-    <param name="ref_file" type="data" format="fasta" label="Use the following dataset as the reference sequence" help="You can upload a FASTA sequence to the history and use it as reference" />
-
+    <conditional name="reference_source">
+      <param name="reference_source_selector" type="select" label="Load reference genome from">
+        <option value="cached">Local cache</option>
+        <option value="history">History</option>
+      </param>
+      <when value="cached">
+        <repeat name="input_bams" title="Sample BAM file" min="1">
+            <param name="input_bam" type="data" format="bam" label="BAM file">
+              <validator type="unspecified_build" />
+              <validator type="dataset_metadata_in_data_table" table_name="fasta_indexes" metadata_name="dbkey" metadata_column="1" message="Sequences are not currently available for the specified build." />
+            </param>
+        </repeat>
+        
+        <param name="ref_file" type="select" label="Using reference genome">
+          <options from_data_table="fasta_indexes"></options>
+          <validator type="no_options" message="A built-in reference genome is not available for the build associated with the selected input file"/>
+        </param>
+      </when>
+      <when value="history"> <!-- FIX ME!!!! -->
+        <repeat name="input_bams" title="Sample BAM file" min="1">
+          <param name="input_bam" type="data" format="bam" label="BAM file" />
+        </repeat>
+        <param name="ref_file" type="data" format="fasta" label="Use the following dataset as the reference sequence" help="You can upload a FASTA sequence to the history and use it as reference" />
+      </when>
+    </conditional>
     
     <conditional name="target_limit_type">
       <param name="target_limit_type_selector" type="select" label="Limit variant calling to a set of regions?" help="Sets --targets or --region options">
@@ -478,7 +495,8 @@
   </inputs>
   
   <outputs>
-    <data format="vcf" name="output_vcf" label="${tool.name} on ${on_string} (variants)" />
+    <!-- <data format="vcf" name="output_vcf" label="${tool.name} on ${on_string} (variants)" /> -->
+    <data format="vcf" name="output_vcf" label="${reference_source.input_bams[0].input_bam.name}" /> 
     <data format="bed" name="output_failed_alleles_bed" label="${tool.name} on ${on_string} (failed alleles)">
       <filter>( options_type['options_type_selector'] == 'cline' or options_type['options_type_selector'] == 'full' ) and options_type['optional_inputs']['optional_inputs_selector'] is True and options_type['optional_inputs']['output_failed_alleles_option'] is True</filter>
     </data>
@@ -488,7 +506,19 @@
   </outputs>
   <tests>
     <test>
-    <!-- removed for now -->
+     <param name="reference_source_selector" value="history" />
+      <param name="ref_file" ftype="fasta" value="freebayes-phix174.fasta"/>
+      <param name="input_bam" ftype="bam" value="freebayes-phix174.bam"/>
+      <param name="options_type_selector" value="simple"/>
+      <output name="output_vcf" file="freebayes-phix174-test1.vcf" compare="contains"/>
+    </test>
+    <test>
+     <param name="reference_source_selector" value="history" />
+      <param name="ref_file" ftype="fasta" value="freebayes-phix174.fasta"/>
+      <param name="input_bam" ftype="bam" value="freebayes-phix174.bam"/>
+      <param name="options_type_selector" value="naive_w_filters"/>
+      <param name="min_coverage" value="14"/>
+      <output name="output_vcf" file="freebayes-phix174-test2.vcf" compare="contains"/>
     </test>
   </tests>
   <stdio>
@@ -502,6 +532,14 @@ FreeBayes is a Bayesian genetic variant detector designed to find small polymorp
 See https://github.com/ekg/freebayes for details on FreeBayes.
 
 This Galaxy instance of FreeBayes corresponds to release 0.9.20
+
+------
+
+**Modified**
+
+This version has been modified to propogate the input file name to the output file to make integration into some workflows
+easier. 
+
 
 ------
 
