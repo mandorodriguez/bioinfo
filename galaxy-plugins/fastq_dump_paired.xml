@@ -1,4 +1,4 @@
-<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1.3">
+<tool id="fastq_dump_paired" name="FASTQ Dump paired downloader" version="1.1.4">
     <description>Downloads a set of paired reads by their accession number using fastq-dump tool from sra-toolkit.</description>
     <requirements>
        <!-- Should just use the samtools that's installed in the path -->
@@ -12,6 +12,8 @@ fastq-dump --log-level fatal --split-3 --accession ${accession_number} --ncbi_er
 ls -lh | grep ${accession_number};
 mv -v ${accession_number}_1.fastq R1.fastq;
 mv -v ${accession_number}_2.fastq R2.fastq;
+echo "Deleting any stored files in ~/ncbi";
+rm -rf ~/ncbi/*
     </command>
     <inputs>
         <param name="accession_number" size="10" type="text" value="" label="Accession Number"/>
