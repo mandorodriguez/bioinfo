@@ -553,7 +553,6 @@ def __main__():
 
             of.write(line)
 
-            pdb.set_trace()
     print "Output %d SNPs to file %s" % (len(snp_objects), output_file)
 
 
