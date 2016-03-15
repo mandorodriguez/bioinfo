@@ -78,7 +78,7 @@ with open(args.arg_table, 'r') as at:
 
 #------------------- End of load table ------------------------------------------
 
-pdb.set_trace()
+#pdb.set_trace()
 # collect our arguments and run prokka
 
 cmd = ["prokka"]
