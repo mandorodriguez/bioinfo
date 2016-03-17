@@ -1,4 +1,4 @@
-<tool id="spades_paired_end_illumina" name="spades_paired_end_illumina" version="1.1">
+<tool id="spades_paired_end_illumina" name="Spades Paired End Illumina" version="1.1">
   <description>SPAdes genome assembler for regular and single-cell projects (Modified)</description>
   <requirements>
     <requirement type="package" version="3.7.1">spades</requirement>
