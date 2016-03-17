@@ -25,7 +25,7 @@ def fastq_dump(accession_id, directory):
     print "Doing a fastq-dump on accession %s:" % accession_id
 
 
-    out = subprocess.Popen(["fastq-dump","--log-level","fatal","--split-3", "--accession %s" % accession_id,
+    out = subprocess.Popen(["fastq-dump","--log-level","fatal","--split-3", "--accession", "%s" % accession_id,
                             "--ncbi_error_report","never"],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT, shell=True)
