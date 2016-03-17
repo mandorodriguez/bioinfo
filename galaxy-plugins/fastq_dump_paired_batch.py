@@ -39,9 +39,15 @@ def fastq_dump(accession_id, directory):
     # move to the given directory
     if directory != ".":
 
-        shutil("./%s_1.fastq" % accession_id, "%s/%s_R1.fastq" % (directory,accession_id))
-        shutil("./%s_2.fastq" % accession_id, "%s/%s_R2.fastq" % (directory,accession_id))
-
+        if os.path.isfile("./%s_1.fastq" % accession_id):
+            
+            shutil("./%s_1.fastq" % accession_id, "%s/%s_R1.fastq" % (directory,accession_id))
+            shutil("./%s_2.fastq" % accession_id, "%s/%s_R2.fastq" % (directory,accession_id))
+            
+        else:
+            
+            raise Exception("fastq-dump failed for %s. No files downloaded" % accession_id)
+        
 #-------------------------------------------------------------------------------
 
 
