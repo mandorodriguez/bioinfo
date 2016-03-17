@@ -83,7 +83,7 @@ if not args.accession_file is None:
 
             for line in input_handle:
 
-                accession_ids += line.rstrip()
+                accession_ids.append(line.rstrip())
 
     except Exception,e:
         print "Error reading accession ids from file %s" % args.accession_file
