@@ -56,7 +56,7 @@ parser.add_argument("--gcode", type=str)
 """
 args = parser.parse_args()
 
-metaname = args.contigs.rstrip(".fasta")
+metaname = args.metaname.rstrip(".fasta")
 
 #-------------------------------------------------------------------------------
 # Here open up the tabular file and put it into a dict
@@ -146,6 +146,8 @@ if not run_args[5]=="":
 if not run_args[6]=="":
     cmd += ["--gcode", run_args[6]]
 
+# Now tack on the fasta file with the contigs
+cmd += [args.contigs]
 
 print "running prokka:\n  %s\n" % " ".join(cmd)
 
