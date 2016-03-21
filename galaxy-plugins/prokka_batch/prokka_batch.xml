@@ -13,7 +13,7 @@
     <requirement type="package" version="1.11">prokka</requirement>
   </requirements>
   <version_command>prokka --version</version_command>
-  <command>
+  <command interpreter="python">
     prokka_batch.py
     --cpus \${GALAXY_SLOTS:-8}
     --quiet ## to avoid non-error messages written to stderr
