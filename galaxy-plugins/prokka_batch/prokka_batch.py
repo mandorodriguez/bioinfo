@@ -31,6 +31,8 @@ parser.add_argument("--prefix", type=str)
 parser.add_argument("--increment", type=str)
 parser.add_argument("--gffver", type=str)
 parser.add_argument("--mincontig", type=str)
+parser.add_argument("--addgenes", type=str)
+parser.add_argument("--compliant", type=str)
 parser.add_argument("--evalue", type=str)
 parser.add_argument("--usegenus", type=str)
 parser.add_argument("--proteins", type=str)
@@ -43,8 +45,6 @@ parser.add_argument("--notra", type=str)
 
 
 """
-parser.add_argument("--addgenes", type=str)
-parser.add_argument("--compliant", type=str)
 parser.add_argument("--centre", type=str)
 parser.add_argument("--genus", type=str)
 parser.add_argument("--species", type=str)
