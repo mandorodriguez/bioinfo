@@ -1,4 +1,4 @@
-<tool id="prokka_batch" name="Prokka Batch" version="0.0.2">
+<tool id="prokka_batch" name="Prokka Batch" version="0.0.3">
   <description>prokaryotic genome annotation, modified with a wrapper for batch runs</description>
   <requirements>
     <requirement type="package" version="2.2.31">blast+</requirement>
@@ -14,7 +14,7 @@
   </requirements>
   <version_command>prokka --version</version_command>
   <command interpreter="python">
-    ./prokka_batch.py
+    prokka_batch.py
     --cpus \${GALAXY_SLOTS:-8}
     --outdir outdir --prefix prokka ## used in outputs section
     #if str($increment)
