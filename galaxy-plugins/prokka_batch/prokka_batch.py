@@ -25,14 +25,25 @@ parser.add_argument("arg_table", type=str,
                     help="The argument table to pass to prokka")
 
 parser.add_argument("--contigs", type=str)
-"""
+parser.add_argument("--cpus", type=str)
 parser.add_argument("--outdir", type=str)
 parser.add_argument("--prefix", type=str)
-parser.add_argument("--cpus", type=str)
 parser.add_argument("--increment", type=str)
 parser.add_argument("--gffver", type=str)
-parser.add_argument("--addgenes", type=str)
 parser.add_argument("--mincontig", type=str)
+parser.add_argument("--evalue", type=str)
+parser.add_argument("--usegenus", type=str)
+parser.add_argument("--proteins", type=str)
+parser.add_argument("--metagenome", type=str)
+parser.add_argument("--fast", type=str)
+parser.add_argument("--rfam", type=str)
+parser.add_argument("--norrna", type=str)
+parser.add_argument("--notra", type=str)
+
+
+
+"""
+parser.add_argument("--addgenes", type=str)
 parser.add_argument("--compliant", type=str)
 parser.add_argument("--centre", type=str)
 parser.add_argument("--genus", type=str)
@@ -41,14 +52,6 @@ parser.add_argument("--strain", type=str)
 parser.add_argument("--plasmid", type=str)
 parser.add_argument("--kingdom", type=str)
 parser.add_argument("--gcode", type=str)
-parser.add_argument("--usegenus", type=str)
-parser.add_argument("--proteins", type=str)
-parser.add_argument("--metagenome", type=str)
-parser.add_argument("--fast", type=str)
-parser.add_argument("--evalue", type=str)
-parser.add_argument("--rfam", type=str)
-parser.add_argument("--norrna", type=str)
-parser.add_argument("--notra", type=str)
 """
 args = parser.parse_args()
 
