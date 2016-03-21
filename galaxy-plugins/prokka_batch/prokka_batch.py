@@ -31,16 +31,16 @@ parser.add_argument("--prefix", type=str)
 parser.add_argument("--increment", type=str)
 parser.add_argument("--gffver", type=str)
 parser.add_argument("--mincontig", type=str)
-parser.add_argument("--addgenes", type=str)
-parser.add_argument("--compliant", type=str)
+parser.add_argument("--addgenes", action='store_true', default=False)
+parser.add_argument("--compliant", action='store_true',  default=False)
 parser.add_argument("--evalue", type=str)
-parser.add_argument("--usegenus", type=str)
+parser.add_argument("--usegenus", action='store_true', default=False)
 parser.add_argument("--proteins", type=str)
-parser.add_argument("--metagenome", type=str)
-parser.add_argument("--fast", type=str)
-parser.add_argument("--rfam", type=str)
-parser.add_argument("--norrna", type=str)
-parser.add_argument("--notra", type=str)
+parser.add_argument("--metagenome", action='store_true', default=False)
+parser.add_argument("--fast", action='store_true', default=False)
+parser.add_argument("--rfam", action='store_true', default=False)
+parser.add_argument("--norrna", action='store_true', default=False)
+parser.add_argument("--notra", action='store_true', default=False)
 
 
 
@@ -83,7 +83,6 @@ with open(args.arg_table, 'r') as at:
 
 #pdb.set_trace()
 # collect our arguments and run prokka
-
 cmd = ["prokka"]
 
 cmd += ["--cpus", args.cpus]
@@ -92,19 +91,38 @@ cmd += ["--outdir","outdir"]
 cmd += ["--prefix", args.prefix]
 cmd += ["--increment", args.increment]
 cmd += ["--gffver", args.gffver]
-cmd += ["--addgenes", args.addgenes]
+
+if args.addgenes:
+    cmd += ["--addgenes", args.addgenes]
+
+    
 cmd += ["--mincontig", args.mincontig]
-cmd += ["--complaint",args.compliant]
+
+if args.compliant:
+    cmd += ["--complaint",args.compliant]
 
 #cmd += ["--gcode", args.gcode]
-cmd += ["--usegenus",args.usegenus]
+if args.usegenus:
+    cmd += ["--usegenus",args.usegenus]
+    
 cmd += ["--proteins",args.proteins]
-cmd += ["--metagenome",args.metagenome]
-cmd += ["--fast", args.fast]
+
+if args.metagenome:
+    cmd += ["--metagenome",args.metagenome]
+
+if args.fast:
+    cmd += ["--fast", args.fast]
+    
 cmd += ["--evalue", args.evalue]
-cmd += ["--rfam", args.rfam]
-cmd += ["--norrna", args.norrna]
-cmd += ["--notrna", args.notrna]
+
+if args.rfam:
+    cmd += ["--rfam", args.rfam]
+
+if args.norna:
+    cmd += ["--norrna", args.norrna]
+
+if args.notrna:
+    cmd += ["--notrna", args.notrna]
 
 # these we fill in from the argument table. If there's no match the key error
 # should let the script quit with an error
