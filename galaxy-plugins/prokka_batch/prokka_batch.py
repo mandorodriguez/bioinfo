@@ -66,6 +66,8 @@ with open(args.arg_table, 'r') as at:
 
     table_data = at.readlines()
 
+    print "Loading arg table\n"
+    
     for line in table_data:
         
         line_parts = [i.rstrip() for i in line.split('\t')]
@@ -74,10 +76,13 @@ with open(args.arg_table, 'r') as at:
 
             prokka_args[line_parts[0]] = line_parts
 
+            print "%s maps to: %s" % (line_parts[0], ",".join(line_parts))
+
         else:
 
             print "Data for '%s' already loaded in table" % line_parts[0]
 
+    print "\n"
 
 #------------------- End of load table ------------------------------------------
 
