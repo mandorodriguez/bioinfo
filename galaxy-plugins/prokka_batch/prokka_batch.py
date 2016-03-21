@@ -150,8 +150,7 @@ if not run_args[6]=="":
 
 # Now tack on the fasta file with the contigs
 cmd += [args.contigs]
-print cmd
-print "\n"
+
 print "running prokka:\n  %s\n" % " ".join(cmd)
 
 out = subprocess.Popen(cmd,stdout=subprocess.PIPE,
