@@ -31,16 +31,16 @@ parser.add_argument("--prefix", type=str)
 parser.add_argument("--increment", type=str)
 parser.add_argument("--gffver", type=str)
 parser.add_argument("--mincontig", type=str)
-parser.add_argument("--addgenes", action='store_true', default=False)
-parser.add_argument("--compliant", action='store_true',  default=False)
+parser.add_argument("--addgenes", action='store_true')
+parser.add_argument("--compliant", action='store_true')
 parser.add_argument("--evalue", type=str)
-parser.add_argument("--usegenus", action='store_true', default=False)
+parser.add_argument("--usegenus", action='store_true')
 parser.add_argument("--proteins", type=str)
-parser.add_argument("--metagenome", action='store_true', default=False)
-parser.add_argument("--fast", action='store_true', default=False)
-parser.add_argument("--rfam", action='store_true', default=False)
-parser.add_argument("--norrna", action='store_true', default=False)
-parser.add_argument("--notra", action='store_true', default=False)
+parser.add_argument("--metagenome", action='store_true')
+parser.add_argument("--fast", action='store_true')
+parser.add_argument("--rfam", action='store_true')
+parser.add_argument("--norrna", action='store_true')
+parser.add_argument("--notra", action='store_true')
 
 
 
@@ -118,7 +118,7 @@ cmd += ["--evalue", args.evalue]
 if args.rfam:
     cmd += ["--rfam", args.rfam]
 
-if args.norna:
+if args.norrna:
     cmd += ["--norrna", args.norrna]
 
 if args.notrna:
