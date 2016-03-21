@@ -1,4 +1,4 @@
-<tool id="prokka_batch" name="Prokka Batch" version="0.0.1">
+<tool id="prokka_batch" name="Prokka Batch" version="0.0.2">
   <description>prokaryotic genome annotation, modified with a wrapper for batch runs</description>
   <requirements>
     <requirement type="package" version="2.2.31">blast+</requirement>
