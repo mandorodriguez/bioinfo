@@ -14,7 +14,7 @@
   </requirements>
   <version_command>prokka --version</version_command>
   <command interpreter="python">
-    prokka_batch.py
+    ./prokka_batch.py
     --cpus \${GALAXY_SLOTS:-8}
     --outdir outdir --prefix prokka ## used in outputs section
     #if str($increment)
