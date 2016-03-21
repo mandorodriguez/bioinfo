@@ -33,10 +33,11 @@
       --compliant
     #end if
 
-    --kingdom $kingdom.kingdom_select
-    #if str($kingdom.gcode)
-      --gcode $kingdom.gcode
-    #end if
+    ## --kingdom $kingdom.kingdom_select
+    ## #if str($kingdom.gcode)
+    ##  --gcode $kingdom.gcode
+    ## #end if
+
     #if $usegenus
       --usegenus
     #end if
