@@ -136,17 +136,17 @@ if args.notrna:
 # should let the script quit with an error
 run_args = prokka_args[metaname]
 
-cmd += ["--strain", run_args[0]]
-cmd += ["--locustag", run_args[1]]
-cmd += ["--centre", run_args[2]]
-cmd += ["--genus", run_args[3]]
-cmd += ["--species", run_args[4]]
+cmd += ["--strain", run_args[0].rstrip()]
+cmd += ["--locustag", run_args[1].rstrip()]
+cmd += ["--centre", run_args[2].rstrip()]
+cmd += ["--genus", run_args[3].rstrip()]
+cmd += ["--species", run_args[4].rstrip()]
 
 if not run_args[5]=="":
-    cmd += ["--plasmid", run_args[5]]
+    cmd += ["--plasmid", run_args[5].rstrip()]
 
 if not run_args[6]=="":
-    cmd += ["--gcode", run_args[6]]
+    cmd += ["--gcode", run_args[6].rstrip()]
 
 # Now tack on the fasta file with the contigs
 cmd += [args.contigs]
