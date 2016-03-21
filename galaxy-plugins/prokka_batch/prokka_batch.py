@@ -101,8 +101,8 @@ cmd += ["--gffver", args.gffver]
 if args.addgenes:
     cmd += ["--addgenes", args.addgenes]
 
-    
-cmd += ["--mincontig", args.mincontig]
+if args.mincontig:
+    cmd += ["--mincontig", args.mincontig]
 
 if args.compliant:
     cmd += ["--complaint",args.compliant]
@@ -110,16 +110,18 @@ if args.compliant:
 #cmd += ["--gcode", args.gcode]
 if args.usegenus:
     cmd += ["--usegenus",args.usegenus]
-    
-cmd += ["--proteins",args.proteins]
+
+if args.proteins:
+    cmd += ["--proteins",args.proteins]
 
 if args.metagenome:
     cmd += ["--metagenome",args.metagenome]
 
 if args.fast:
     cmd += ["--fast", args.fast]
-    
-cmd += ["--evalue", args.evalue]
+
+if args.evalue:
+    cmd += ["--evalue", args.evalue]
 
 if args.rfam:
     cmd += ["--rfam", args.rfam]
