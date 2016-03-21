@@ -92,7 +92,7 @@ with open(args.arg_table, 'r') as at:
 cmd = ["prokka"]
 
 cmd += ["--cpus", args.cpus]
-cmd += ["--quiet"]
+#cmd += ["--quiet"]
 cmd += ["--outdir","outdir"]
 cmd += ["--prefix", args.prefix]
 cmd += ["--increment", args.increment]
