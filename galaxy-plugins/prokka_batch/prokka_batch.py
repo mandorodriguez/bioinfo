@@ -25,6 +25,7 @@ parser.add_argument("arg_table", type=str,
                     help="The argument table to pass to prokka")
 
 parser.add_argument("--contigs", type=str)
+parser.add_argument("--metaname", type=str)
 parser.add_argument("--cpus", type=str)
 parser.add_argument("--outdir", type=str)
 parser.add_argument("--prefix", type=str)

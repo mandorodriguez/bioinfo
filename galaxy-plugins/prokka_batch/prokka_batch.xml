@@ -61,7 +61,8 @@
     #if $notrna
       --notrna
     #end if
-    --contigs $input.name
+    --contigs $input
+    --metaname $input.name
     $arg_table
   </command>
   <!-- Need to use stdio because prokka writes some warnings on stderr (due to the "use warnings" Perl pragma) -->
