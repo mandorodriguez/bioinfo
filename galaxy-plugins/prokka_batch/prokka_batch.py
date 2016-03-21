@@ -40,7 +40,7 @@ parser.add_argument("--metagenome", action='store_true')
 parser.add_argument("--fast", action='store_true')
 parser.add_argument("--rfam", action='store_true')
 parser.add_argument("--norrna", action='store_true')
-parser.add_argument("--notra", action='store_true')
+parser.add_argument("--notrna", action='store_true')
 
 
 
