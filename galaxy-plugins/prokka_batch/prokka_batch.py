@@ -99,38 +99,38 @@ cmd += ["--increment", args.increment]
 cmd += ["--gffver", args.gffver]
 
 if args.addgenes:
-    cmd += ["--addgenes", args.addgenes]
+    cmd += ["--addgenes"]
 
 if args.mincontig:
     cmd += ["--mincontig", args.mincontig]
 
 if args.compliant:
-    cmd += ["--complaint",args.compliant]
+    cmd += ["--complaint"]
 
 #cmd += ["--gcode", args.gcode]
 if args.usegenus:
-    cmd += ["--usegenus",args.usegenus]
+    cmd += ["--usegenus"]
 
 if args.proteins:
     cmd += ["--proteins",args.proteins]
 
 if args.metagenome:
-    cmd += ["--metagenome",args.metagenome]
+    cmd += ["--metagenome"]
 
 if args.fast:
-    cmd += ["--fast", args.fast]
+    cmd += ["--fast"]
 
 if args.evalue:
     cmd += ["--evalue", args.evalue]
 
 if args.rfam:
-    cmd += ["--rfam", args.rfam]
+    cmd += ["--rfam"]
 
 if args.norrna:
-    cmd += ["--norrna", args.norrna]
+    cmd += ["--norrna"]
 
 if args.notrna:
-    cmd += ["--notrna", args.notrna]
+    cmd += ["--notrna"]
 
 # these we fill in from the argument table. If there's no match the key error
 # should let the script quit with an error
