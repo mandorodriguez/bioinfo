@@ -153,7 +153,7 @@ cmd += [args.contigs]
 
 print "running prokka:\n  %s\n" % " ".join(cmd)
 
-out = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,shell=True)
+out = subprocess.Popen(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
 
 if not out.stdout is None:
     for line in iter(out.stdout.readline,b''):
