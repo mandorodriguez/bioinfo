@@ -105,7 +105,7 @@ if args.mincontig:
     cmd += ["--mincontig", args.mincontig]
 
 if args.compliant:
-    cmd += ["--complaint"]
+    cmd += ["--compliant"]
 
 #cmd += ["--gcode", args.gcode]
 if args.usegenus:
