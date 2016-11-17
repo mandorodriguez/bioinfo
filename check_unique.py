@@ -17,6 +17,18 @@ def load_table(csv_file):
 
     infile.close()
 
+    if len(csv_data) == 1 and not '\n' in csv_data and not '\r' in csv_data:
+
+        #print "Condensing list"
+        
+        csv_data = csv_data[0]
+
+    if '\r' in csv_data:
+        
+        #print "Splitting data by return carriages"
+
+        csv_data = csv_data.split('\r')
+
     return csv_data
 
 #-------------------------------------------------------------------------------
@@ -34,8 +46,45 @@ def __main__():
     output_file = args.outfile
 
     csv_data = load_table(args.csv_file)
-    
-    pdb.set_trace()
+
+    found_data = False
+
+    unique_indexes = {}
+    indexes = []
+
+    for line in csv_data:
+
+        if "Sample_ID" in line:
+            for indx,tag in enumerate(line.split(',')):
+                if "ndex" in tag:
+                    indexes.append(indx)
+
+            found_data = True
+
+        if found_data:
+
+            line_parts = line.split(',')
+
+            index_id = ",".join([line_parts[i] for i in indexes])
+
+            if unique_indexes.has_key(index_id):
+
+                unique_indexes[index_id].append(line_parts[0])
+                
+            else:
+
+                unique_indexes[index_id] = [line_parts[0]]
+        
+
+    for index_id,sample_names in unique_indexes.iteritems():
+
+        is_or_not = "unique" if len(sample_names) == 1 else "not unique"
+        
+        for s in sample_names:
+
+            print "%s\t%s" % (s,is_or_not)
+            
+
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
 
