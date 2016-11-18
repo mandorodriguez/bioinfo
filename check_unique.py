@@ -49,6 +49,7 @@ def __main__():
 
     found_data = False
 
+    header_indexes = []
     unique_indexes = {}
     indexes = []
 
@@ -58,6 +59,7 @@ def __main__():
             for indx,tag in enumerate(line.split(',')):
                 if "ndex" in tag:
                     indexes.append(indx)
+                    header_indexes.append(tag)
 
             found_data = True
 
@@ -75,16 +77,28 @@ def __main__():
 
                 unique_indexes[index_id] = [line_parts[0]]
         
+    outfile = open(output_file, 'w')
 
+    outfile.write("Sample_ID\tUnique\t"+'\t'.join( header_indexes )+'\n')
+       
     for index_id,sample_names in unique_indexes.iteritems():
 
         is_or_not = "unique" if len(sample_names) == 1 else "not unique"
+
+        index_tags = index_id.split(',')
         
         for s in sample_names:
 
             print "%s\t%s" % (s,is_or_not)
+
+            outfile.write("%s\t%s\t%s\n" % (s, is_or_not,'\t'.join(index_tags)) )
+
             
 
+    outfile.close()
+
+    print "CSV file has been written to %s" % output_file
+    
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
 
