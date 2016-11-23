@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+"""
+
+Program loads two hiseq tables from the machine and transfers all of the
+sample well data from the first into the second. 
+
+"""
+
 
 import argparse
 import pdb
@@ -23,7 +30,7 @@ class NewSampleWellTable:
 
         self.sample_wells = {}
 
-        self.header_indexes = []
+        self.header_indexes = {}
 
         sample_well_index = None
 
@@ -34,21 +41,18 @@ class NewSampleWellTable:
             if "Sample_ID" in line:
                 
                 for i,item in enumerate(line):
-
-                    if "ndx" in item:
                         
-                        self.header_indexes.append(item)
-
+                        self.header_indexes[item] = i
+ 
                 sample_well_index = self.header_indexes["Sample_Well"]
                 
                 found_data = True
 
-            pdb.set_trace()
 
             if found_data:
 
                 sample_well_id = line[sample_well_index]
-                pdb.set_trace()
+
                 if not sw.sample_wells.has_key(sample_well_id):
 
                     print "Sample Well %s for '%s' not found" % (sample_well_id,",".join(line))
@@ -56,15 +60,18 @@ class NewSampleWellTable:
                 
                 else:
 
-                    for i,j in enumerate(line):
+                    
+                    for i,j in enumerate(self.header_indexes):
+
 
                         if "ndex" in j:
+                            this_index = self.header_indexes[j]
 
                             value = sw.get_data(sample_well_id,j)
 
-                            line[i] = value
+                            line[this_index] = value
 
-                            pdb.set_trace()
+
                     
 #-------------------------------------------------------------------------------
 
@@ -127,26 +134,32 @@ class SampleWells:
 
 def __main__():
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="""
+Program loads two hiseq tables from the machine and transfers all of the
+sample well data from the first into the second and outputs a new csv file into
+a file called new_sheet.csv
+    """)
     parser.add_argument("sample_well_file", type=str,
                         help="The csv file with the sample well data")
     parser.add_argument("empty_well_file", type=str,
                         help="The csv file with parts to fill in from the sample well file ")
     parser.add_argument("-o", "--outfile", type=str,
-                        help="The output file", default="check_unique_out.txt")
+                        help="The output file, by defualt new_sheet.csv", default="new_sheet.csv")
 
     args = parser.parse_args()
 
     output_file = args.outfile
 
     sw = SampleWells(args.sample_well_file)
-    csv_data = NewSampleWellTable(args.empty_well_file,sw)
+    nsw = NewSampleWellTable(args.empty_well_file,sw)
 
 
-    # Now we loop through the 
-    pdb.set_trace()
+    with open(output_file,'w') as outf:
 
+        for line in nsw.data:
 
+            outf.write(",".join(line)+"\n")
+            
 
     print "CSV file has been written to %s" % output_file
     
