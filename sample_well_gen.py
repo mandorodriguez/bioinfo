@@ -26,7 +26,7 @@ class Indexes:
 
         data = read_file(index_file)
 
-        self.headers = data[0]
+        self.headers = data[0][2:4] + data[0][0:2]
 
         self.alpha = [(l[0],l[1]) for l in data[1:] if l[0] != '' and l[1] != '']
         self.num = [(l[2],l[3]) for l in data[1:] if l[2] != '' and l[3] != '']
@@ -36,20 +36,18 @@ class Indexes:
 
         curr_char = 'A'
         curr_num = 1
-        
-        for a in self.alpha:
-            for n in self.num:
+
+        for n in self.num:
+            for a in self.alpha:
 
                 sample_well = "%s%s" % (curr_char,str(curr_num))
                 
-                self.indexes.append( ( sample_well, a, n) )
-                self.lines.append( [sample_well, a[0], a[1], n[0], n[1]] )
+                #self.indexes.append( ( sample_well, a, n) )
+                self.lines.append( [sample_well, n[0], n[1], a[0], a[1]] )
+                curr_char = chr(ord(curr_char) + 1)
 
-                curr_num += 1
-
-            curr_char = chr(ord(curr_char) + 1)
-            curr_num = 1
-            
+            curr_num += 1
+            curr_char = 'A'
                     
 
 #-------------------------------------------------------------------------------
