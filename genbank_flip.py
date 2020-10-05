@@ -28,7 +28,7 @@ def parse_genbank_file(genbank_file):
 
     genbank_input_handle.close()
 
-    print "Read in %i genbank records from file %s" % (len(genbank_recs), genbank_file)
+    print("Read in %i genbank records from file %s" % (len(genbank_recs), genbank_file))
 
     return genbank_recs[0]
 
@@ -133,7 +133,7 @@ def __main__():
         output_handle.write(format(' ',"5") + "source" + format(' ',"11") + "%s..%s" % (source_start+1,source_end+1) + "\n")
 
         
-        for key,val in source.qualifiers.iteritems():
+        for key,val in source.qualifiers.items():
             output_handle.write(format(' ',"22")+"/%s=\"%s\"\n" % (key, ",".join(val)))
 
         for coords in gene_coords:
@@ -147,7 +147,7 @@ def __main__():
                 
     
 
-    print "Flipped genbank is written to %s" % output_file
+    print("Flipped genbank is written to %s" % output_file)
     
 #-------------------------------------------------------------------------------
 if __name__=="__main__": __main__()
