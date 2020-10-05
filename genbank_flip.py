@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 __version__="1.0"
 
@@ -60,7 +60,7 @@ def __main__():
                         help="Prefix for the converted genes", default="NC", metavar="NC")
     parser.add_argument("-o", "--outfile", type=str,
                         help="The output file", default="flipped.gb",metavar="flipped_genbank.gb")
-    parser.add_argument("-m", "--min", type=str,
+    parser.add_argument("-m", "--min", type=int,
                         help="Minimum Length to allow for a gene", default=0,metavar="MIN_LENGTH")
     parser.add_argument("genbank_file", type=str,
                         help="The genbank file to flip", metavar="file.gb")
@@ -75,7 +75,7 @@ def __main__():
 
     gene_prefix = args.prefix
 
-    min_length = args.min
+    min_length = int(args.min)
     
     source = genbank_rec.features[0]
     source_start = genbank_rec.features[0].location.start
