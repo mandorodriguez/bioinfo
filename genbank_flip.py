@@ -150,7 +150,7 @@ def __main__():
 
             gene_coords.append( (int(feature.location.start), int(feature.location.end)) )
 
-    # sort the coords just in case they're out of order (normally not the case)
+    # sort the coords by first coord just in case they're out of order (normally not the case)
     gene_coords.sort(key=lambda tup: tup[0])
 
 
