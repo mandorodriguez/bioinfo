@@ -143,21 +143,28 @@ def __main__():
 
     next_start = 0
 
-    # collect what will be the new gene coords
+    # collect all the current gene coord positions
     for feature in genbank_rec.features[1:]:
 
         if feature.type == "gene":
-            
-            this_start = int(feature.location.start)
-            this_end = int(feature.location.end)
 
-            gene_coords.append( (this_start, this_end) )
+            gene_coords.append( (int(feature.location.start), int(feature.location.end)) )
 
-            if this_start > next_start:
+    # sort the coords just in case they're out of order (normally not the case)
+    gene_coords.sort(key=lambda tup: tup[0])
 
-                noncoding_coords.append( (next_start,this_start-1) ) 
 
-                next_start = this_end+1
+    # Loop through the coords and collect the 'gaps' in between them
+    for gc in gene_coords:
+
+        this_start = gc[0]
+        this_end = gc[1]
+
+        if this_start > next_start:
+
+            noncoding_coords.append( (next_start,this_start-1) ) 
+
+            next_start = this_end+1
         
 
     noncoding_coords.append( (next_start, int(source_end)) )
@@ -169,10 +176,6 @@ def __main__():
 
         if not in_gene(ncc,gene_coords,verbose):
             new_coords.append(ncc)
-        else:
-            pass
-            #print("Removing overlap positions: {},{} with length {}".format(ncc[0],ncc[1],int(ncc[1] - ncc[0])))
-
 
     # now we read in the genbank file and prepare to reoutput it.
     genbank_lines = []
