@@ -65,7 +65,6 @@ def in_gene(n,coords,verbose=False):
 
 def print_coord(n,c):
 
-
     if n[0] == c[0]:
         print("First position {},{} is equal to starting coord {},{}".format(n[0],n[1],c[0],c[1]))
     elif n[1] == c[0]:
@@ -211,8 +210,12 @@ def __main__():
 
         for coords in new_coords:
             
-            if coords[1]-coords[0] > min_length:
-                output_handle.write( gene_string % (coords[0]+1,coords[1]+1,"%s_%s" % (gene_prefix,format(nc_gene_num,"06"))) )
+            if coords[1]-coords[0] >= min_length:
+
+                this_coord_1 = coords[0]+1
+                this_coord_2 = coords[1]+1
+                
+                output_handle.write( gene_string % (this_coord_1,this_coord_2,"%s_%s" % (gene_prefix,format(nc_gene_num,"06"))) )
                 nc_gene_num += 1
 
         output_handle.write("ORIGIN\n")
